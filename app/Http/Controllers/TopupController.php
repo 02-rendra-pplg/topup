@@ -15,9 +15,9 @@ class TopupController extends Controller
 public function show($slug)
 {
     $games = [
-        'mobile-legends' => ['nama' => 'Mobile Legends', 'type' => '2id', 'id' => 'ML'],
+        'mobile-legends' => ['nama' => 'Mobile Legends', 'type' => '2id', 'id' => 'MOBILELEGEND'],
         'pubg-mobile' => ['nama' => 'PUBG Mobile', 'type' => '1id', 'id' => 'PUBGM'],
-        'free-fire' => ['nama' => 'Free Fire', 'type' => '1id', 'id' => 'FREEFIRE'],
+        'free-fire' => ['nama' => 'Free Fire', 'type' => '1id', 'id' => 'DIAMOND%20FREEFIRE'],
         'genshin-impact' => ['nama' => 'Genshin Impact', 'type' => '1id', 'id' => 'GENSHIN'],
         'delta-force-garena' => ['nama' => 'Delta Force Garena', 'type' => '1id', 'id' => 'DFG'],
         'delta-force-steam' => ['nama' => 'Delta Force Steam', 'type' => '1id', 'id' => 'DFS'],
