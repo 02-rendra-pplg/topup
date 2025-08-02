@@ -45,8 +45,8 @@
 <div class="footer mt-5">
     <div class="container text-center">
         <h4 class="fw-bold">instinc<span style="color: #3498db">T</span></h4>
-        <p class="text-muted mb-1">Top-up game kesukaanmu dengan harga bersahabat dan layanan cepat!</p>
-        <p class="text-muted mb-3">Didukung berbagai metode pembayaran digital.</p>
+        <p class="text-light mb-1">Top-up game kesukaanmu dengan harga bersahabat dan layanan cepat!</p>
+        <p class="text-light mb-3">Didukung berbagai metode pembayaran digital.</p>
 
         <div class="d-flex justify-content-center gap-3">
             <a href="#" class="btn btn-outline-light btn-sm">Instagram</a>
