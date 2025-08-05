@@ -21,3 +21,6 @@ Route::post('/topup', [TopupController::class, 'store'])->name('topup.store');
 // Pastikan ini tidak bentrok dengan route di atas
 // Route::get('/topup/{slug}', [TopupController::class, 'show']);
 
+// Route::get('/test-error', function () {
+//     abort(500, 'Test error log');
+// });

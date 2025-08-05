@@ -44,12 +44,26 @@ public function show($slug)
         CURLOPT_CUSTOMREQUEST => 'GET',
     ));
 
-    $response = curl_exec($curl);
-    curl_close($curl);
+$response = curl_exec($curl);
+
+if ($response === false) {
+    dd([
+        'curl_error' => curl_error($curl),
+        'curl_errno' => curl_errno($curl),
+        'info' => curl_getinfo($curl)
+    ]);
+}
+
+curl_close($curl);
+
+
+    // dd([
+    //     'raw_response' => $response,
+    //     'decoded' => json_decode($response, true)
+    // ]);
 
     $list_game = json_decode($response, true);
 
-    // ✅ Taruh pengecekan di sini
     if (!$list_game || !isset($list_game['hrg'])) {
         return abort(500, 'Gagal mengambil data dari server.');
     }
@@ -61,9 +75,6 @@ public function show($slug)
         'list' => $list_game['hrg'],
     ]);
 }
-
-
-
 
 
 public function store(Request $request)
@@ -91,7 +102,7 @@ public function store(Request $request)
 
 
 
-    
+
 
 
 }
