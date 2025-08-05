@@ -105,7 +105,7 @@
             <div class="col-md-4">
                 <h4 class="fw-bold mb-3">instinc<span style="color: #3498db">T</span></h4>
                 <p style="color: #ccc;">
-                    Top-Up Game Favorit Kamu Di Empeshop Agar Main Game Semakin Seru.<br>
+                    Top-Up Game Favorit Kamu Di instincT Agar Main Game Semakin Seru.<br>
                     Pengiriman Cepat Dan Berbagai Methode Pembayaran Yang Lengkap.
                 </p>
             </div>
