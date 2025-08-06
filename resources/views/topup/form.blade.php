@@ -92,7 +92,7 @@
 
                         {{-- Tombol Submit --}}
                         <div class="mt-4 d-grid">
-                            <button type="submit" class="btn fw-bold" style="background-color: #ffffff; color: #000;">Kirim Pesanan</button>
+                           <button type="button" id="btnKirimPesanan" class="btn fw-bold" style="background-color: #ffffff; color: #000;">Kirim Pesanan</button>
                         </div>
 
                         {{-- Metode Pembayaran --}}
@@ -116,6 +116,30 @@
                             </div>
                         </div>
                     </form>
+                    <!-- Modal Konfirmasi -->
+<div class="modal fade" id="modalKonfirmasi" tabindex="-1" aria-labelledby="modalKonfirmasiLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content text-dark">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalKonfirmasiLabel">Konfirmasi Pembelian</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+      </div>
+      <div class="modal-body">
+        <p><strong>Game:</strong> {{ $namaGame }}</p>
+        <p><strong>User ID:</strong> <span id="konfirmasiUserID"></span></p>
+        @if ($type === '2id')
+        <p><strong>Server ID:</strong> <span id="konfirmasiServerID"></span></p>
+        @endif
+        <p><strong>Nominal:</strong> <span id="konfirmasiNominal"></span></p>
+        <p><strong>Harga:</strong> <span id="konfirmasiHarga"></span></p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+        <button type="button" class="btn btn-primary" onclick="submitForm()">Bayar Sekarang</button>
+      </div>
+    </div>
+  </div>
+</div>
                 </div>
             </div>
         </div>
@@ -123,38 +147,52 @@
 </div>
 
 <script>
-    document.querySelectorAll('.pilih-nominal').forEach(button => {
-        button.addEventListener('click', function () {
-            const nominal = this.getAttribute('data-nominal');
-            const harga = parseInt(this.getAttribute('data-harga'));
+    const btnKirim = document.getElementById('btnKirimPesanan');
+    const modal = new bootstrap.Modal(document.getElementById('modalKonfirmasi'));
 
-            // Set input value
-            document.getElementById('nominalInput').value = nominal;
-            document.getElementById('hargaInput').value = harga;
+    btnKirim.addEventListener('click', () => {
+        const userID = document.querySelector('[name="user_id"]').value;
+        const serverID = document.querySelector('[name="server_id"]')?.value || '-';
+        const whatsapp = document.querySelector('[name="whatsapp"]').value;
+        const nominal = document.getElementById('nominalInput').value;
+        const harga = parseInt(document.getElementById('hargaInput').value || 0);
 
-            // Update harga di QRIS
-            const formattedHarga = new Intl.NumberFormat('id-ID', {
-                style: 'currency',
-                currency: 'IDR',
-                minimumFractionDigits: 0
-            }).format(harga);
-            document.getElementById('qrisHarga').innerText = formattedHarga;
+        if (!userID || !whatsapp || !nominal || !harga) {
+            alert('Mohon lengkapi semua data sebelum melanjutkan.');
+            return;
+        }
 
-            // Styling tombol
-            document.querySelectorAll('.pilih-nominal').forEach(btn => {
-                btn.classList.remove('btn-info');
-                btn.classList.add('btn-outline-light');
-            });
+        // Isi modal
+        document.getElementById('konfirmasiUserID').innerText = userID;
+        if (document.getElementById('konfirmasiServerID')) {
+            document.getElementById('konfirmasiServerID').innerText = serverID;
+        }
+        document.getElementById('konfirmasiNominal').innerText = nominal;
+        document.getElementById('konfirmasiHarga').innerText = new Intl.NumberFormat('id-ID', {
+            style: 'currency', currency: 'IDR', minimumFractionDigits: 0
+        }).format(harga);
 
-            this.classList.remove('btn-outline-light');
-            this.classList.add('btn-info');
-        });
+        modal.show();
     });
 
-    function toggleQrisDetail() {
-        const detail = document.getElementById('qrisDetail');
-        detail.style.display = detail.style.display === 'none' ? 'block' : 'none';
+    function submitForm() {
+        // Tampilkan QRIS
+        const qrisDetail = document.getElementById('qrisDetail');
+        qrisDetail.style.display = 'block';
+
+        // Tutup modal
+        const modalElement = document.getElementById('modalKonfirmasi');
+        const bsModal = bootstrap.Modal.getInstance(modalElement);
+        bsModal.hide();
+
+        // (Opsional) Scroll ke QRIS
+        qrisDetail.scrollIntoView({ behavior: 'smooth' });
+
+        // (Opsional) Simpan transaksi ke server via AJAX, jika tidak ingin reload halaman
+        // Jika tetap ingin kirim form ke server, bisa uncomment baris di bawah ini:
+        // document.querySelector('form').submit();
     }
 </script>
+
 
 @endsection
