@@ -86,7 +86,7 @@ public function store(Request $request)
         'whatsapp' => 'required',
     ]);
 
-    $server_id = $request->input('server_id'); // hanya ada jika 2id
+    $server_id = $request->input('server_id');
     $game = $request->input('game');
     $user_id = $request->input('user_id');
     $nominal = $request->input('nominal');
