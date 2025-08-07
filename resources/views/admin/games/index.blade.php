@@ -12,7 +12,7 @@
     <thead>
         <tr>
             <th>Nama</th>
-            <th>Logo</th>
+            <th style="width: 150px;">Gambar</th>
             <th>Tipe</th>
             <th>URL API</th>
             <th>Logo Diamond</th>
@@ -23,10 +23,18 @@
         @forelse($games as $game)
         <tr>
             <td>{{ $game->name }}</td>
-            <td><img src="{{ asset('storage/'.$game->logo) }}" width="50"></td>
-            <td>{{ $game->type }}</td>
+            <td>
+                <img src="{{ asset('storage/'.$game->logo) }}"
+                     alt="{{ $game->name }}"
+                     style="width: 120px; height: auto;">
+            </td>
+            <td>{{ $game->tipe }}</td>
             <td>{{ $game->url_api }}</td>
-            <td><img src="{{ asset('storage/'.$game->logo_diamond) }}" width="50"></td>
+            <td>
+                <img src="{{ asset('storage/'.$game->logo_diamond) }}"
+                     alt="Diamond {{ $game->name }}"
+                     width="50">
+            </td>
             <td>
                 <a href="{{ route('games.edit', $game->id) }}" class="btn btn-warning btn-sm">Edit</a>
                 <form action="{{ route('games.destroy', $game->id) }}" method="POST" class="d-inline">
