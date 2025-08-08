@@ -147,6 +147,30 @@
 </div>
 
 <script>
+    // Event: Saat tombol nominal diklik
+    document.querySelectorAll('.pilih-nominal').forEach(button => {
+        button.addEventListener('click', function () {
+            const nominal = this.getAttribute('data-nominal');
+            const harga = this.getAttribute('data-harga');
+
+            // Isi ke input hidden
+            document.getElementById('nominalInput').value = nominal;
+            document.getElementById('hargaInput').value = harga;
+
+            // Tampilkan harga di QRIS
+            document.getElementById('qrisHarga').innerText = new Intl.NumberFormat('id-ID', {
+                style: 'currency',
+                currency: 'IDR',
+                minimumFractionDigits: 0
+            }).format(harga);
+
+            // Highlight tombol terpilih
+            document.querySelectorAll('.pilih-nominal').forEach(btn => btn.classList.remove('active'));
+            this.classList.add('active');
+        });
+    });
+
+    // Event: Klik tombol kirim pesanan (tampilkan modal)
     const btnKirim = document.getElementById('btnKirimPesanan');
     const modal = new bootstrap.Modal(document.getElementById('modalKonfirmasi'));
 
@@ -162,37 +186,44 @@
             return;
         }
 
-        // Isi modal
+        // Isi data konfirmasi
         document.getElementById('konfirmasiUserID').innerText = userID;
         if (document.getElementById('konfirmasiServerID')) {
             document.getElementById('konfirmasiServerID').innerText = serverID;
         }
         document.getElementById('konfirmasiNominal').innerText = nominal;
         document.getElementById('konfirmasiHarga').innerText = new Intl.NumberFormat('id-ID', {
-            style: 'currency', currency: 'IDR', minimumFractionDigits: 0
+            style: 'currency',
+            currency: 'IDR',
+            minimumFractionDigits: 0
         }).format(harga);
 
         modal.show();
     });
 
+    // Event: Setelah konfirmasi, tampilkan QRIS
     function submitForm() {
-        // Tampilkan QRIS
         const qrisDetail = document.getElementById('qrisDetail');
         qrisDetail.style.display = 'block';
 
-        // Tutup modal
         const modalElement = document.getElementById('modalKonfirmasi');
         const bsModal = bootstrap.Modal.getInstance(modalElement);
         bsModal.hide();
 
-        // (Opsional) Scroll ke QRIS
+        // Scroll ke QRIS
         qrisDetail.scrollIntoView({ behavior: 'smooth' });
 
-        // (Opsional) Simpan transaksi ke server via AJAX, jika tidak ingin reload halaman
-        // Jika tetap ingin kirim form ke server, bisa uncomment baris di bawah ini:
+        // Optional: jika ingin langsung kirim form ke server
         // document.querySelector('form').submit();
     }
+
+    // Optional: fungsi toggle manual QRIS detail jika dibutuhkan
+    function toggleQrisDetail() {
+        const detail = document.getElementById('qrisDetail');
+        detail.style.display = detail.style.display === 'none' ? 'block' : 'none';
+    }
 </script>
+
 
 
 @endsection
