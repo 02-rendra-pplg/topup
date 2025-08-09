@@ -19,30 +19,30 @@ class PembayaranController extends Controller
         return view('admin.pembayaran.create');
     }
 
-    public function store(Request $request)
-    {
-        $request->validate([
-            'nama' => 'required',
-            'logo' => 'required|image|mimes:png,jpg,jpeg|max:2048',
-            'tipe' => 'required|in:QRIS,e-wallet,store,VA',
-            'admin' => 'required|integer|min:0',
-            'tipe_admin' => 'required|boolean',
-            'status' => 'required|boolean',
-        ]);
+   public function store(Request $request)
+{
+    $request->validate([
+        'nama' => 'required',
+        'logo' => 'required|image|mimes:png,jpg,jpeg|max:2048',
+        'tipe' => 'required|in:QRIS,e-wallet,store,VA',
+        'admin' => 'required|numeric|min:0',
+        'tipe_admin' => 'required|in:persen,rupiah',
+        'status' => 'required|boolean',
+    ]);
 
-        $logoPath = $request->file('logo')->store('logos_pembayaran', 'public');
+    $logoPath = $request->file('logo')->store('logos_pembayaran', 'public');
 
-        Pembayaran::create([
-            'nama' => $request->nama,
-            'logo' => $logoPath,
-            'tipe' => $request->tipe,
-            'admin' => $request->admin,
-            'tipe_admin' => $request->tipe_admin,
-            'status' => $request->status,
-        ]);
+    Pembayaran::create([
+        'nama' => $request->nama,
+        'logo' => $logoPath,
+        'tipe' => $request->tipe,
+        'admin' => $request->admin,
+        'tipe_admin' => $request->tipe_admin,
+        'status' => $request->status,
+    ]);
 
-        return redirect()->route('pembayaran.index')->with('success', 'Metode pembayaran berhasil ditambahkan.');
-    }
+    return redirect()->route('pembayaran.index')->with('success', 'Metode pembayaran berhasil ditambahkan.');
+}
 
     public function edit(Pembayaran $pembayaran)
     {
@@ -50,26 +50,27 @@ class PembayaranController extends Controller
     }
 
     public function update(Request $request, Pembayaran $pembayaran)
-    {
-        $request->validate([
-            'nama' => 'required',
-            'logo' => 'nullable|image|mimes:png,jpg,jpeg|max:2048',
-            'tipe' => 'required|in:QRIS,e-wallet,store,VA',
-            'admin' => 'required|integer|min:0',
-            'tipe_admin' => 'required|boolean',
-            'status' => 'required|boolean',
-        ]);
+{
+    $request->validate([
+        'nama' => 'required',
+        'logo' => 'nullable|image|mimes:png,jpg,jpeg|max:2048',
+        'tipe' => 'required|in:QRIS,e-wallet,store,VA',
+        'admin' => 'required|numeric|min:0',
+        'tipe_admin' => 'required|in:persen,rupiah',
+        'status' => 'required|boolean',
+    ]);
 
-        $data = $request->only('nama', 'tipe', 'admin', 'tipe_admin', 'status');
+    $data = $request->only('nama', 'tipe', 'admin', 'tipe_admin', 'status');
 
-        if ($request->hasFile('logo')) {
-            $data['logo'] = $request->file('logo')->store('logos_pembayaran', 'public');
-        }
-
-        $pembayaran->update($data);
-
-        return redirect()->route('pembayaran.index')->with('success', 'Metode pembayaran diperbarui.');
+    if ($request->hasFile('logo')) {
+        $data['logo'] = $request->file('logo')->store('logos_pembayaran', 'public');
     }
+
+    $pembayaran->update($data);
+
+    return redirect()->route('pembayaran.index')->with('success', 'Metode pembayaran diperbarui.');
+}
+
 
     public function destroy(Pembayaran $pembayaran)
     {

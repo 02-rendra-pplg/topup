@@ -21,13 +21,14 @@ class GameController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
-            'name' => 'required',
-            'logo' => 'required|image|mimes:png,jpg,jpeg|max:2048',
-            'tipe' => 'required|integer',
-            'url_api' => 'required|url',
-            'logo_diamond' => 'required|image|mimes:png,jpg,jpeg|max:2048'
-        ]);
+       $request->validate([
+        'name' => 'required',
+        'logo' => 'required|image|mimes:png,jpg,jpeg,webp|max:2048',
+        'tipe' => 'required|integer',
+        'url_api' => 'required|url',
+        'logo_diamond' => 'required|image|mimes:png,jpg,jpeg,webp|max:2048'
+    ]);
+
 
         $logoPath = $request->file('logo')->store('logos', 'public');
         $diamondPath = $request->file('logo_diamond')->store('diamond_logos', 'public');
@@ -47,15 +48,15 @@ class GameController extends Controller
     {
         return view('admin.games.edit', compact('game'));
     }
-    
+
     public function update(Request $request, Game $game)
     {
         $request->validate([
             'name' => 'required',
             'tipe' => 'required|integer',
             'url_api' => 'required|url',
-            'logo' => 'nullable|image|mimes:png,jpg,jpeg|max:2048',
-            'logo_diamond' => 'nullable|image|mimes:png,jpg,jpeg|max:2048'
+            'logo' => 'nullable|image|mimes:png,jpg,jpeg,webp|max:2048',
+            'logo_diamond' => 'nullable|image|mimes:png,jpg,jpeg,webp|max:2048'
         ]);
 
         $data = $request->only('name', 'tipe', 'url_api');

@@ -19,7 +19,7 @@ Route::post('/login-admin', [AdminController::class, 'login'])->name('admin.logi
 
 Route::middleware('auth:admin')->group(function() {
     Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
-    Route::resource('/games', GameController::class);
+    Route::resource('games', GameController::class);
     Route::resource('pembayaran', PembayaranController::class);
     Route::post('/logout-admin', [AdminController::class, 'logout'])->name('admin.logout');
 });
