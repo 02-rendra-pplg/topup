@@ -4,55 +4,54 @@
 <div class="container my-5">
     <div class="row g-4">
         {{-- Kiri: Deskripsi Game --}}
-   <div class="col-md-5">
-    <div class="card h-100 shadow" style="background-color: #1f2937; border-radius: 12px;">
-        <div class="card-body p-4 text-white">
-            {{-- Gambar dan Nama Game --}}
-            <div class="d-flex align-items-center mb-3">
-                <img src="{{ asset('images/games/mlbb.png') }}" alt="{{ $namaGame }}" width="60" class="rounded me-3">
-                <div>
-                    <span class="badge bg-pink text-white mb-1" style="background-color: #484bec;">{{ $publisher ?? 'Moonton' }}</span>
-                    <h5 class="mb-0 text-white">{{ $namaGame }}</h5>
-                </div>
-            </div>
+        <div class="col-md-5">
+            <div class="card h-100 shadow" style="background-color: #1f2937; border-radius: 12px;">
+                <div class="card-body p-4 text-white">
+                    {{-- Gambar dan Nama Game --}}
+                    <div class="d-flex align-items-center mb-3">
+                        <img src="{{ asset('images/games/mlbb.png') }}" alt="{{ $namaGame }}" width="60" class="rounded me-3">
+                        <div>
+                            <span class="badge bg-pink text-white mb-1" style="background-color: #484bec;">{{ $publisher ?? 'Moonton' }}</span>
+                            <h5 class="mb-0 text-white">{{ $namaGame }}</h5>
+                        </div>
+                    </div>
 
-            {{-- Fitur / Keunggulan --}}
-            <div class="row mb-3 text-white small">
-                <div class="col-6 d-flex align-items-center mb-2">
-                    <i class="bi bi-shield-check me-2 text-success"></i> Jaminan Layanan
-                </div>
-                <div class="col-6 d-flex align-items-center mb-2">
-                    <i class="bi bi-headset me-2 text-primary"></i> Layanan Pelanggan 24/7
-                </div>
-                <div class="col-6 d-flex align-items-center mb-2">
-                    <i class="bi bi-credit-card-2-front me-2 text-warning"></i> Pembayaran Aman
-                </div>
-                <div class="col-6 d-flex align-items-center mb-2">
-                    <i class="bi bi-lightning-charge me-2 text-danger"></i> Pengiriman Instant
-                </div>
-            </div>
+                    {{-- Fitur / Keunggulan --}}
+                    <div class="row mb-3 text-white small">
+                        <div class="col-6 d-flex align-items-center mb-2">
+                            <i class="bi bi-shield-check me-2 text-success"></i> Jaminan Layanan
+                        </div>
+                        <div class="col-6 d-flex align-items-center mb-2">
+                            <i class="bi bi-headset me-2 text-primary"></i> Layanan Pelanggan 24/7
+                        </div>
+                        <div class="col-6 d-flex align-items-center mb-2">
+                            <i class="bi bi-credit-card-2-front me-2 text-warning"></i> Pembayaran Aman
+                        </div>
+                        <div class="col-6 d-flex align-items-center mb-2">
+                            <i class="bi bi-lightning-charge me-2 text-danger"></i> Pengiriman Instant
+                        </div>
+                    </div>
 
-            <hr class="border-light">
+                    <hr class="border-light">
 
-            {{-- Deskripsi --}}
-            <p class="text-light small mb-3">
-                Top up Diamond {{ $namaGame }} hanya dalam hitungan detik!<br>
-                Cukup masukan User ID & Server MLBB Anda, pilih jumlah Diamond yang Anda inginkan, selesaikan pembayaran dan Diamond akan langsung masuk ke akun {{ $namaGame }} Anda.
-            </p>
+                    {{-- Deskripsi --}}
+                    <p class="text-light small mb-3">
+                        Top up Diamond {{ $namaGame }} hanya dalam hitungan detik!<br>
+                        Cukup masukan User ID & Server MLBB Anda, pilih jumlah Diamond yang Anda inginkan, selesaikan pembayaran dan Diamond akan langsung masuk ke akun {{ $namaGame }} Anda.
+                    </p>
 
-            <div class="alert alert-warning text-dark small mb-0">
-                Khusus Server Original, Tidak Bisa Isi Advance Server!
+                    <div class="alert alert-warning text-dark small mb-0">
+                        Khusus Server Original, Tidak Bisa Isi Advance Server!
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
-</div>
-
 
         {{-- Kanan: Form Input --}}
         <div class="col-md-7">
             <div class="card shadow" style="background-color: #1f2937;">
                 <div class="card-body p-4 text-white">
-                    <form method="POST" action="{{ route('topup.store') }}">
+                    <form method="POST" action="{{ route('topup.store') }}" id="topupForm">
                         @csrf
                         <input type="hidden" name="game" value="{{ $namaGame }}">
                         <input type="hidden" name="harga" id="hargaInput">
@@ -95,59 +94,62 @@
                            <button type="button" id="btnKirimPesanan" class="btn fw-bold" style="background-color: #ffffff; color: #000;">Kirim Pesanan</button>
                         </div>
 
-                        {{-- Metode Pembayaran --}}
-                        <div class="mt-5">
-                            <h6 class="text-white">Metode Pembayaran</h6>
-                            <div class="rounded p-3 d-flex justify-content-between align-items-center mb-3 qris-toggle" style="background-color: #fffefe; cursor: pointer;" onclick="toggleQrisDetail()">
-                                <div class="d-flex align-items-center">
-                                    <img src="{{ asset('images/qris.png') }}" alt="QRIS" width="40" class="me-3">
-                                    <span class="fw-semibold text-dark">QRIS</span>
-                                </div>
-                                <span class="fw-bold text-dark" id="qrisHarga">Rp 0</span>
-                            </div>
+                   {{-- Metode Pembayaran --}}
+<div class="mt-5">
+    <h6 class="text-white">Metode Pembayaran</h6>
+    <div id="qrisBox" 
+         class="rounded p-3 d-flex justify-content-between align-items-center mb-3 qris-toggle border border-2" 
+         style="background-color: #fffefe; cursor: pointer; border-color: transparent;">
+        <div class="d-flex align-items-center">
+            <img src="{{ asset('images/qris.png') }}" alt="QRIS" width="40" class="me-3">
+            <span class="fw-semibold text-dark">QRIS</span>
+        </div>
+        <span class="fw-bold text-dark" id="qrisHarga">Rp 0</span>
+    </div>
+</div>
 
-                            {{-- Detail QRIS --}}
-                            <div id="qrisDetail" style="display: none;">
-                                <div class="bg-white rounded p-3 text-center">
-                                    <p class="mb-2 fw-semibold text-dark">Silakan scan kode QR di bawah ini untuk membayar:</p>
-                                    {{-- <img src="{{ asset('images/qr-sample.png') }}" alt="QRIS Code" width="200"> --}}
-                                    <p class="mt-2 text-muted small mb-0">QRIS akan menyesuaikan dengan nominal yang kamu pilih.</p>
+
+                    <!-- Modal Konfirmasi -->
+                    <div class="modal fade" id="modalKonfirmasi" tabindex="-1" aria-labelledby="modalKonfirmasiLabel" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-content text-dark">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="modalKonfirmasiLabel">Konfirmasi Pembelian</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <p><strong>Game:</strong> {{ $namaGame }}</p>
+                                    <p><strong>User ID:</strong> <span id="konfirmasiUserID"></span></p>
+                                    @if ($type === '2id')
+                                    <p><strong>Server ID:</strong> <span id="konfirmasiServerID"></span></p>
+                                    @endif
+                                    <p><strong>Nominal:</strong> <span id="konfirmasiNominal"></span></p>
+                                    <p><strong>Harga:</strong> <span id="konfirmasiHarga"></span></p>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                                    <button type="button" class="btn btn-primary" id="btnBayarSekarang">Bayar Sekarang</button>
                                 </div>
                             </div>
                         </div>
-                    </form>
-                    <!-- Modal Konfirmasi -->
-<div class="modal fade" id="modalKonfirmasi" tabindex="-1" aria-labelledby="modalKonfirmasiLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content text-dark">
-      <div class="modal-header">
-        <h5 class="modal-title" id="modalKonfirmasiLabel">Konfirmasi Pembelian</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
-      </div>
-      <div class="modal-body">
-        <p><strong>Game:</strong> {{ $namaGame }}</p>
-        <p><strong>User ID:</strong> <span id="konfirmasiUserID"></span></p>
-        @if ($type === '2id')
-        <p><strong>Server ID:</strong> <span id="konfirmasiServerID"></span></p>
-        @endif
-        <p><strong>Nominal:</strong> <span id="konfirmasiNominal"></span></p>
-        <p><strong>Harga:</strong> <span id="konfirmasiHarga"></span></p>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-        <button type="button" class="btn btn-primary" onclick="submitForm()">Bayar Sekarang</button>
-      </div>
-    </div>
-  </div>
-</div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
+<style>
+/* Highlight saat dipilih */
+.qris-selected {
+    border-color: #ff9800 !important; /* kuning */
+    box-shadow: 0 0 5px rgba(255, 152, 0, 0.5);
+}
+</style>
+
 <script>
-    // Event: Saat tombol nominal diklik
+document.addEventListener('DOMContentLoaded', function () {
+    // Event: Pilih nominal
     document.querySelectorAll('.pilih-nominal').forEach(button => {
         button.addEventListener('click', function () {
             const nominal = this.getAttribute('data-nominal');
@@ -164,10 +166,21 @@
                 minimumFractionDigits: 0
             }).format(harga);
 
-            // Highlight tombol terpilih
+            // Highlight tombol nominal
             document.querySelectorAll('.pilih-nominal').forEach(btn => btn.classList.remove('active'));
             this.classList.add('active');
         });
+    });
+
+    // Event: Klik QRIS
+    document.getElementById('qrisBox').addEventListener('click', function () {
+        // Hapus highlight dari semua metode pembayaran
+        document.querySelectorAll('.qris-toggle').forEach(el => {
+            el.classList.remove('qris-selected');
+        });
+
+        // Tambahkan highlight ke yang diklik
+        this.classList.add('qris-selected');
     });
 
     // Event: Klik tombol kirim pesanan (tampilkan modal)
@@ -201,29 +214,12 @@
         modal.show();
     });
 
-    // Event: Setelah konfirmasi, tampilkan QRIS
-    function submitForm() {
-        const qrisDetail = document.getElementById('qrisDetail');
-        qrisDetail.style.display = 'block';
-
-        const modalElement = document.getElementById('modalKonfirmasi');
-        const bsModal = bootstrap.Modal.getInstance(modalElement);
-        bsModal.hide();
-
-        // Scroll ke QRIS
-        qrisDetail.scrollIntoView({ behavior: 'smooth' });
-
-        // Optional: jika ingin langsung kirim form ke server
-        // document.querySelector('form').submit();
-    }
-
-    // Optional: fungsi toggle manual QRIS detail jika dibutuhkan
-    function toggleQrisDetail() {
-        const detail = document.getElementById('qrisDetail');
-        detail.style.display = detail.style.display === 'none' ? 'block' : 'none';
-    }
+    // Event: Setelah konfirmasi
+    document.getElementById('btnBayarSekarang').addEventListener('click', () => {
+        modal.hide();
+        document.getElementById('topupForm').submit();
+    });
+});
 </script>
-
-
 
 @endsection
