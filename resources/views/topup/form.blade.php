@@ -11,25 +11,17 @@
                     <div class="d-flex align-items-center mb-3">
                         <img src="{{ asset('images/games/mlbb.png') }}" alt="{{ $namaGame }}" width="60" class="rounded me-3">
                         <div>
-                            <span class="badge bg-pink text-white mb-1" style="background-color: #484bec;">{{ $publisher ?? 'Moonton' }}</span>
+                            <span class="badge" style="background-color: #484bec;">{{ $publisher ?? 'Moonton' }}</span>
                             <h5 class="mb-0 text-white">{{ $namaGame }}</h5>
                         </div>
                     </div>
 
-                    {{-- Fitur / Keunggulan --}}
+                    {{-- Fitur --}}
                     <div class="row mb-3 text-white small">
-                        <div class="col-6 d-flex align-items-center mb-2">
-                            <i class="bi bi-shield-check me-2 text-success"></i> Jaminan Layanan
-                        </div>
-                        <div class="col-6 d-flex align-items-center mb-2">
-                            <i class="bi bi-headset me-2 text-primary"></i> Layanan Pelanggan 24/7
-                        </div>
-                        <div class="col-6 d-flex align-items-center mb-2">
-                            <i class="bi bi-credit-card-2-front me-2 text-warning"></i> Pembayaran Aman
-                        </div>
-                        <div class="col-6 d-flex align-items-center mb-2">
-                            <i class="bi bi-lightning-charge me-2 text-danger"></i> Pengiriman Instant
-                        </div>
+                        <div class="col-6 d-flex align-items-center mb-2"><i class="bi bi-shield-check me-2 text-success"></i> Jaminan Layanan</div>
+                        <div class="col-6 d-flex align-items-center mb-2"><i class="bi bi-headset me-2 text-primary"></i> Layanan Pelanggan 24/7</div>
+                        <div class="col-6 d-flex align-items-center mb-2"><i class="bi bi-credit-card-2-front me-2 text-warning"></i> Pembayaran Aman</div>
+                        <div class="col-6 d-flex align-items-center mb-2"><i class="bi bi-lightning-charge me-2 text-danger"></i> Pengiriman Instant</div>
                     </div>
 
                     <hr class="border-light">
@@ -37,7 +29,7 @@
                     {{-- Deskripsi --}}
                     <p class="text-light small mb-3">
                         Top up Diamond {{ $namaGame }} hanya dalam hitungan detik!<br>
-                        Cukup masukan User ID & Server MLBB Anda, pilih jumlah Diamond yang Anda inginkan, selesaikan pembayaran dan Diamond akan langsung masuk ke akun {{ $namaGame }} Anda.
+                        Masukkan User ID & Server MLBB Anda, pilih jumlah Diamond, lakukan pembayaran, dan Diamond langsung masuk ke akun Anda.
                     </p>
 
                     <div class="alert alert-warning text-dark small mb-0">
@@ -47,7 +39,7 @@
             </div>
         </div>
 
-        {{-- Kanan: Form Input --}}
+        {{-- Kanan: Form --}}
         <div class="col-md-7">
             <div class="card shadow" style="background-color: #1f2937;">
                 <div class="card-body p-4 text-white">
@@ -61,15 +53,15 @@
                         <h5 class="mb-3 text-white">Informasi Pelanggan</h5>
                         <div class="row g-3">
                             <div class="col-md-{{ $type === '2id' ? '6' : '12' }}">
-                                <input type="text" name="user_id" class="form-control" style="background-color: #ffffff; color: #000;" placeholder="User ID" required>
+                                <input type="text" name="user_id" class="form-control bg-white text-dark" placeholder="User ID" required>
                             </div>
                             @if ($type === '2id')
                             <div class="col-md-6">
-                                <input type="text" name="server_id" class="form-control" style="background-color: #ffffff; color: #000;" placeholder="Server ID" required>
+                                <input type="text" name="server_id" class="form-control bg-white text-dark" placeholder="Server ID" required>
                             </div>
                             @endif
                             <div class="col-12">
-                                <input type="text" name="whatsapp" class="form-control" style="background-color: #ffffff; color: #000;" placeholder="08xxxxxxxxxx" required>
+                                <input type="text" name="whatsapp" class="form-control bg-white text-dark" placeholder="08xxxxxxxxxx" required>
                             </div>
                         </div>
 
@@ -77,11 +69,12 @@
                         <h5 class="mt-4 mb-2 text-white">Pilih Nominal Top Up</h5>
                         <div class="row g-2">
                             @foreach ($list as $val)
-                                @php
-                                    $harga_bersih = (int) preg_replace('/\D/', '', $val['hrg']);
-                                @endphp
+                                @php $harga_bersih = (int) preg_replace('/\D/', '', $val['hrg']); @endphp
                                 <div class="col-6 col-md-4">
-                                    <button type="button" class="btn btn-outline-light w-100 pilih-nominal text-start" data-nominal="{{ $val['nama'] }}" data-harga="{{ $harga_bersih }}">
+                                    <button type="button" 
+                                        class="btn btn-outline-light w-100 pilih-nominal text-start" 
+                                        data-nominal="{{ $val['nama'] }}" 
+                                        data-harga="{{ $harga_bersih }}">
                                         <div class="small">{{ $val['nama'] }}</div>
                                         <div class="fw-semibold">Rp {{ number_format($harga_bersih, 0, ',', '.') }}</div>
                                     </button>
@@ -89,27 +82,24 @@
                             @endforeach
                         </div>
 
+                        {{-- Metode Pembayaran --}}
+                        <div class="mt-5">
+                            <h6 class="text-white">Metode Pembayaran</h6>
+                            <div id="qrisBox" class="rounded p-3 d-flex justify-content-between align-items-center mb-3 qris-toggle border border-2" style="background-color: #fffefe; cursor: pointer;">
+                                <div class="d-flex align-items-center">
+                                    <img src="{{ asset('images/qris.png') }}" alt="QRIS" width="40" class="me-3">
+                                    <span class="fw-semibold text-dark">QRIS</span>
+                                </div>
+                                <span class="fw-bold text-dark" id="qrisHarga">Rp 0</span>
+                            </div>
+                            
                         {{-- Tombol Submit --}}
                         <div class="mt-4 d-grid">
-                           <button type="button" id="btnKirimPesanan" class="btn fw-bold" style="background-color: #ffffff; color: #000;">Kirim Pesanan</button>
+                            <button type="button" id="btnKirimPesanan" class="btn fw-bold" style="background-color: #ffffff; color: #000;">Kirim Pesanan</button>
                         </div>
+                    </form>
 
-                   {{-- Metode Pembayaran --}}
-<div class="mt-5">
-    <h6 class="text-white">Metode Pembayaran</h6>
-    <div id="qrisBox" 
-         class="rounded p-3 d-flex justify-content-between align-items-center mb-3 qris-toggle border border-2" 
-         style="background-color: #fffefe; cursor: pointer; border-color: transparent;">
-        <div class="d-flex align-items-center">
-            <img src="{{ asset('images/qris.png') }}" alt="QRIS" width="40" class="me-3">
-            <span class="fw-semibold text-dark">QRIS</span>
-        </div>
-        <span class="fw-bold text-dark" id="qrisHarga">Rp 0</span>
-    </div>
-</div>
-
-
-                    <!-- Modal Konfirmasi -->
+                    {{-- Modal Konfirmasi --}}
                     <div class="modal fade" id="modalKonfirmasi" tabindex="-1" aria-labelledby="modalKonfirmasiLabel" aria-hidden="true">
                         <div class="modal-dialog modal-dialog-centered">
                             <div class="modal-content text-dark">
@@ -140,86 +130,76 @@
 </div>
 
 <style>
-/* Highlight saat dipilih */
-.qris-selected {
-    border-color: #ff9800 !important; /* kuning */
-    box-shadow: 0 0 5px rgba(255, 152, 0, 0.5);
-}
+.qris-selected { border-color: #ff9800 !important; box-shadow: 0 0 5px rgba(255, 152, 0, 0.5); }
+.pilih-nominal.active { background-color: #ff9800; color: #fff; }
 </style>
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    // Event: Pilih nominal
-    document.querySelectorAll('.pilih-nominal').forEach(button => {
-        button.addEventListener('click', function () {
-            const nominal = this.getAttribute('data-nominal');
-            const harga = this.getAttribute('data-harga');
+    const nominalBtns = document.querySelectorAll('.pilih-nominal');
+    const qrisBox = document.getElementById('qrisBox');
+    const qrisImage = document.getElementById('qrisImageContainer');
+    const hargaInput = document.getElementById('hargaInput');
+    const nominalInput = document.getElementById('nominalInput');
 
-            // Isi ke input hidden
-            document.getElementById('nominalInput').value = nominal;
-            document.getElementById('hargaInput').value = harga;
+    // Pilih nominal
+    nominalBtns.forEach(btn => {
+        btn.addEventListener('click', function () {
+            const nominal = this.dataset.nominal;
+            const harga = this.dataset.harga;
 
-            // Tampilkan harga di QRIS
-            document.getElementById('qrisHarga').innerText = new Intl.NumberFormat('id-ID', {
-                style: 'currency',
-                currency: 'IDR',
-                minimumFractionDigits: 0
-            }).format(harga);
+            nominalInput.value = nominal;
+            hargaInput.value = harga;
 
-            // Highlight tombol nominal
-            document.querySelectorAll('.pilih-nominal').forEach(btn => btn.classList.remove('active'));
+            document.getElementById('qrisHarga').innerText = formatRupiah(harga);
+
+            nominalBtns.forEach(b => b.classList.remove('active'));
             this.classList.add('active');
         });
     });
 
-    // Event: Klik QRIS
-    document.getElementById('qrisBox').addEventListener('click', function () {
-        // Hapus highlight dari semua metode pembayaran
-        document.querySelectorAll('.qris-toggle').forEach(el => {
-            el.classList.remove('qris-selected');
-        });
-
-        // Tambahkan highlight ke yang diklik
+    // Klik QRIS
+    qrisBox.addEventListener('click', function () {
+        document.querySelectorAll('.qris-toggle').forEach(el => el.classList.remove('qris-selected'));
         this.classList.add('qris-selected');
+        qrisImage.classList.remove('d-none'); // Tampilkan gambar QRIS
     });
 
-    // Event: Klik tombol kirim pesanan (tampilkan modal)
-    const btnKirim = document.getElementById('btnKirimPesanan');
-    const modal = new bootstrap.Modal(document.getElementById('modalKonfirmasi'));
-
-    btnKirim.addEventListener('click', () => {
+    // Klik Kirim Pesanan
+    document.getElementById('btnKirimPesanan').addEventListener('click', function () {
         const userID = document.querySelector('[name="user_id"]').value;
         const serverID = document.querySelector('[name="server_id"]')?.value || '-';
         const whatsapp = document.querySelector('[name="whatsapp"]').value;
-        const nominal = document.getElementById('nominalInput').value;
-        const harga = parseInt(document.getElementById('hargaInput').value || 0);
+        const nominal = nominalInput.value;
+        const harga = parseInt(hargaInput.value || 0);
 
         if (!userID || !whatsapp || !nominal || !harga) {
             alert('Mohon lengkapi semua data sebelum melanjutkan.');
             return;
         }
 
-        // Isi data konfirmasi
         document.getElementById('konfirmasiUserID').innerText = userID;
         if (document.getElementById('konfirmasiServerID')) {
             document.getElementById('konfirmasiServerID').innerText = serverID;
         }
         document.getElementById('konfirmasiNominal').innerText = nominal;
-        document.getElementById('konfirmasiHarga').innerText = new Intl.NumberFormat('id-ID', {
+        document.getElementById('konfirmasiHarga').innerText = formatRupiah(harga);
+
+        new bootstrap.Modal(document.getElementById('modalKonfirmasi')).show();
+    });
+
+    // Bayar Sekarang
+    document.getElementById('btnBayarSekarang').addEventListener('click', function () {
+        document.getElementById('topupForm').submit();
+    });
+
+    function formatRupiah(angka) {
+        return new Intl.NumberFormat('id-ID', {
             style: 'currency',
             currency: 'IDR',
             minimumFractionDigits: 0
-        }).format(harga);
-
-        modal.show();
-    });
-
-    // Event: Setelah konfirmasi
-    document.getElementById('btnBayarSekarang').addEventListener('click', () => {
-        modal.hide();
-        document.getElementById('topupForm').submit();
-    });
+        }).format(angka);
+    }
 });
 </script>
-
 @endsection

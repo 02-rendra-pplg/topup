@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Pembayaran;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use App\Models\Order;
 
 class PembayaranController extends Controller
 {
@@ -82,4 +83,21 @@ class PembayaranController extends Controller
 
         return redirect()->route('pembayaran.index')->with('success', 'Metode pembayaran dihapus.');
     }
+
+    public function qris($orderId)
+{
+    // Ambil data order dari database
+    $order = \App\Models\Order::where('id', $orderId)->firstOrFail();
+
+    // Kirim ke view qris.blade.php
+    return view('topup.qris', [
+        'qrisData' => [
+            'qris' => $order->qris_payload, // payload atau URL QRIS
+            'expired' => $order->expired_at,
+            'total' => $order->total,
+            'id' => $order->id
+        ]
+    ]);
+}
+
 }
