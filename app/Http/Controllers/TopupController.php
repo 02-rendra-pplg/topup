@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\FlashSale;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
@@ -9,7 +10,12 @@ class TopupController extends Controller
 {
     public function index()
     {
-        return view('topup.index');
+           $flashSales = FlashSale::where('status', 1)
+            ->where('mulai', '<=', now())
+            ->where('berakhir', '>=', now())
+            ->get();
+
+        return view('topup.index', compact('flashSales'));
     }
 
 public function show($slug)
@@ -31,6 +37,11 @@ public function show($slug)
     }
 
     $game = $games[$slug];
+
+        $flashSales = FlashSale::where('status', 1)
+        ->where('mulai', '<=', now())
+        ->where('berakhir', '>=', now())
+        ->get();
 
     $curl = curl_init();
     curl_setopt_array($curl, array(
@@ -73,6 +84,7 @@ curl_close($curl);
         'namaGame' => $game['nama'],
         'type' => $game['type'],
         'list' => $list_game['hrg'],
+        'flashSales' => $flashSales,
     ]);
 }
 

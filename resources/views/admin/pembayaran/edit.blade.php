@@ -12,7 +12,7 @@
         <input type="text" name="nama" value="{{ $pembayaran->nama }}" class="form-control" required>
     </div>
     <div class="mb-3">
-        <label>Logo (kosongkan jika tidak diubah)</label>
+        <label>Logo (biarkan kosong jika tidak diubah)</label>
         <input type="file" name="logo" class="form-control" accept="image/*">
     </div>
     <div class="mb-3">
@@ -26,7 +26,8 @@
     </div>
     <div class="mb-3">
         <label>Biaya Admin</label>
-        <input type="number" step="0.01" name="admin" value="{{ $pembayaran->admin }}" class="form-control" required>
+        <input type="number" name="admin" class="form-control" step="0.01"
+            value="{{ old('admin', $pembayaran->admin) }}" required>
     </div>
     <div class="mb-3">
         <label>Tipe Admin</label>

@@ -25,7 +25,8 @@
     </div>
     <div class="mb-3">
         <label>Biaya Admin</label>
-        <input type="number" step="0.01" name="admin" class="form-control" placeholder="Contoh: 0.7 atau 4000" required>
+        <input type="number" name="admin" class="form-control" step="0.01"
+            placeholder="contoh: 0.7 untuk 0,7% atau 4000 untuk Rp 4000" required>
     </div>
     <div class="mb-3">
         <label>Tipe Admin</label>

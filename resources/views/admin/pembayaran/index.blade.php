@@ -19,7 +19,6 @@
             <th>Logo</th>
             <th>Tipe</th>
             <th>Biaya Admin</th>
-            <th>Tipe Admin</th>
             <th>Status</th>
             <th>Aksi</th>
         </tr>
@@ -34,13 +33,10 @@
                 <td>{{ $pembayaran->tipe }}</td>
                 <td>
                     @if($pembayaran->tipe_admin === 'persen')
-                        {{ rtrim(rtrim(number_format($pembayaran->admin, 2, '.', ''), '0'), '.') }}%
+                        {{ rtrim(rtrim(number_format($pembayaran->admin, 2), '0'), '.') }}%
                     @else
                         Rp {{ number_format($pembayaran->admin, 0, ',', '.') }}
                     @endif
-                </td>
-                <td>
-                    {{ $pembayaran->tipe_admin === 'persen' ? 'Persentase (%)' : 'Nominal (Rp)' }}
                 </td>
                 <td>
                     <span class="badge {{ $pembayaran->status ? 'bg-success' : 'bg-secondary' }}">
@@ -49,7 +45,8 @@
                 </td>
                 <td>
                     <a href="{{ route('pembayaran.edit', $pembayaran->id) }}" class="btn btn-warning btn-sm">Edit</a>
-                    <form action="{{ route('pembayaran.destroy', $pembayaran->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Yakin hapus metode ini?')">
+                    <form action="{{ route('pembayaran.destroy', $pembayaran->id) }}" method="POST" class="d-inline"
+                        onsubmit="return confirm('Yakin hapus metode ini?')">
                         @csrf
                         @method('DELETE')
                         <button class="btn btn-danger btn-sm">Hapus</button>
@@ -58,7 +55,7 @@
             </tr>
         @empty
             <tr>
-                <td colspan="7" class="text-center">Belum ada metode pembayaran</td>
+                <td colspan="6" class="text-center">Belum ada metode pembayaran</td>
             </tr>
         @endforelse
     </tbody>

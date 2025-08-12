@@ -12,6 +12,9 @@
         <div class="col-md-4">
             <a href="{{ route('pembayaran.index') }}" class="btn btn-success btn-lg w-100 mb-3">Metode Pembayaran</a>
         </div>
+        <div class="col-md-4">
+            <a href="{{ route('flashsale.index') }}" class="btn btn-success btn-lg w-100 mb-3">FlashSale</a>
+        </div>
     </div>
 </div>
 @endsection

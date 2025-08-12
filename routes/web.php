@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\GameController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\TopupController;
+use App\Http\Controllers\FlashSaleController;
 use App\Http\Controllers\PembayaranController;
 
 // Halaman utama
@@ -30,5 +31,6 @@ Route::middleware('auth:admin')->group(function() {
     Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
     Route::resource('games', GameController::class);
     Route::resource('pembayaran', PembayaranController::class);
+    Route::resource('flashsale', FlashSaleController::class);
     Route::post('/logout-admin', [AdminController::class, 'logout'])->name('admin.logout');
 });

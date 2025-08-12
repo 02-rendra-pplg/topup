@@ -6,17 +6,19 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
+
     public function up()
     {
-        Schema::table('pembayarans', function (Blueprint $table) {
-            $table->string('tipe_admin', 20)->change();
+        Schema::table('flash_sales', function (Blueprint $table) {
+            $table->string('gambar')->nullable()->after('nama_promo');
         });
     }
 
     public function down()
     {
-        Schema::table('pembayarans', function (Blueprint $table) {
-            $table->boolean('tipe_admin')->change();
+        Schema::table('flash_sales', function (Blueprint $table) {
+            $table->dropColumn('gambar');
         });
     }
+
 };
