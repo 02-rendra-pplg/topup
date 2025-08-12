@@ -11,6 +11,7 @@ class FlashSale extends Model
 
     protected $fillable = [
         'nama_promo',
+        'gambar',
         'tipe',
         'diskon_persen',
         'bonus_item',

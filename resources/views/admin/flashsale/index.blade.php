@@ -15,6 +15,7 @@
 <table class="table table-bordered align-middle">
     <thead>
         <tr>
+            <th>Gambar</th>
             <th>Nama Promo</th>
             <th>Tipe</th>
             <th>Diskon</th>
@@ -27,6 +28,15 @@
     <tbody>
         @forelse ($flashSales as $fs)
             <tr>
+                <td class="text-center">
+                    @if($fs->gambar)
+                        <img src="{{ asset('storage/flashsale/' . $fs->gambar) }}"
+                             alt="{{ $fs->nama_promo }}"
+                             style="width:60px; height:auto; border-radius:5px;">
+                    @else
+                        <span class="text-muted">Tidak ada gambar</span>
+                    @endif
+                </td>
                 <td>{{ $fs->nama_promo }}</td>
                 <td>{{ ucfirst($fs->tipe) }}</td>
                 <td>{{ $fs->diskon_persen ? $fs->diskon_persen . '%' : '-' }}</td>
@@ -46,7 +56,7 @@
                 </td>
             </tr>
         @empty
-            <tr><td colspan="7" class="text-center">Belum ada Flash Sale</td></tr>
+            <tr><td colspan="8" class="text-center">Belum ada Flash Sale</td></tr>
         @endforelse
     </tbody>
 </table>

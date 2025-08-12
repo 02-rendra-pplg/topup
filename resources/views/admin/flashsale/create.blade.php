@@ -3,17 +3,25 @@
 @section('title', 'Tambah Flash Sale')
 
 @section('content')
-<h3>Tambah Flash Sale</h3>
-<form action="{{ route('flashsale.store') }}" method="POST">
+<h3 class="mb-4">Tambah Flash Sale</h3>
+
+<form action="{{ route('flashsale.store') }}" method="POST" enctype="multipart/form-data">
     @csrf
+
     <div class="mb-3">
-        <label>Nama Promo</label>
-        <input type="text" name="nama_promo" class="form-control" required>
+        <label class="form-label">Nama Promo</label>
+        <input type="text" name="nama_promo" class="form-control" value="{{ old('nama_promo') }}" required>
     </div>
 
     <div class="mb-3">
-        <label>Tipe Promo</label>
-        <select name="tipe" class="form-control" id="tipe" required>
+        <label class="form-label">Gambar Promo (Diamond)</label>
+        <input type="file" name="gambar" class="form-control" accept="image/*">
+        <small class="text-muted">Format: JPG, PNG, GIF (Maks 2MB)</small>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Tipe Promo</label>
+        <select name="tipe" id="tipe" class="form-control" required>
             <option value="">-- Pilih Tipe --</option>
             <option value="diskon">Diskon Harga</option>
             <option value="bonus">Bonus Item</option>
@@ -21,33 +29,32 @@
     </div>
 
     <div class="mb-3 tipe-diskon d-none">
-        <label>Diskon (%)</label>
-        <input type="number" step="0.1" name="diskon_persen" class="form-control">
+        <label class="form-label">Diskon (%)</label>
+        <input type="number" step="0.1" name="diskon_persen" class="form-control" placeholder="contoh: 10">
     </div>
 
     <div class="mb-3 tipe-bonus d-none">
-        <label>Bonus Item</label>
+        <label class="form-label">Bonus Item</label>
         <input type="number" name="bonus_item" class="form-control" placeholder="contoh: 65">
-        <small class="text-muted">Masukkan jumlah bonus DM atau item.</small>
     </div>
 
     <div class="mb-3 tipe-bonus d-none">
-        <label>Keterangan Bonus</label>
+        <label class="form-label">Keterangan Bonus</label>
         <input type="text" name="keterangan_bonus" class="form-control" placeholder="contoh: Bonus Diamond">
     </div>
 
     <div class="mb-3">
-        <label>Tanggal Mulai</label>
+        <label class="form-label">Tanggal Mulai</label>
         <input type="datetime-local" name="mulai" class="form-control" required>
     </div>
 
     <div class="mb-3">
-        <label>Tanggal Berakhir</label>
+        <label class="form-label">Tanggal Berakhir</label>
         <input type="datetime-local" name="berakhir" class="form-control" required>
     </div>
 
     <div class="mb-3">
-        <label>Status</label>
+        <label class="form-label">Status</label>
         <select name="status" class="form-control" required>
             <option value="1">Aktif</option>
             <option value="0">Nonaktif</option>

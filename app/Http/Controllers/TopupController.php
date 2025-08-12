@@ -38,6 +38,11 @@ public function show($slug)
 
     $game = $games[$slug];
 
+        $flashSales = FlashSale::where('status', 1)
+        ->where('mulai', '<=', now())
+        ->where('berakhir', '>=', now())
+        ->get();
+
     $curl = curl_init();
     curl_setopt_array($curl, array(
         CURLOPT_URL => 'https://ceklaporan.com/android/harga?id=' . $game['id'] . '&kode=M10263&opr=SEMUA',
@@ -79,6 +84,7 @@ curl_close($curl);
         'namaGame' => $game['nama'],
         'type' => $game['type'],
         'list' => $list_game['hrg'],
+        'flashSales' => $flashSales,
     ]);
 }
 
