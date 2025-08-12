@@ -19,67 +19,80 @@ class PembayaranController extends Controller
         return view('admin.pembayaran.create');
     }
 
-   public function store(Request $request)
-{
-    $request->validate([
-        'nama' => 'required',
-        'logo' => 'required|image|mimes:png,jpg,jpeg|max:2048',
-        'tipe' => 'required|in:QRIS,e-wallet,store,VA',
-        'admin' => 'required|numeric|min:0',
-        'tipe_admin' => 'required|in:persen,rupiah',
-        'status' => 'required|boolean',
-    ]);
-
-    $logoPath = $request->file('logo')->store('logos_pembayaran', 'public');
-
-    Pembayaran::create([
-        'nama' => $request->nama,
-        'logo' => $logoPath,
-        'tipe' => $request->tipe,
-        'admin' => $request->admin,
-        'tipe_admin' => $request->tipe_admin,
-        'status' => $request->status,
-    ]);
-
-    return redirect()->route('pembayaran.index')->with('success', 'Metode pembayaran berhasil ditambahkan.');
-}
-
-    public function edit(Pembayaran $pembayaran)
+    public function store(Request $request)
     {
+        $request->validate([
+            'nama'       => 'required|string|max:255',
+            'logo'       => 'required|image|mimes:jpg,jpeg,png|max:2048',
+            'tipe'       => 'required|string',
+            'admin'      => 'required|numeric',
+            'tipe_admin' => 'required|in:persen,rupiah',
+            'status'     => 'required|boolean',
+        ]);
+
+        $logoPath = $request->file('logo')->store('pembayaran', 'public');
+
+        Pembayaran::create([
+            'nama'       => $request->nama,
+            'logo'       => $logoPath,
+            'tipe'       => $request->tipe,
+            'admin'      => $request->admin,
+            'tipe_admin' => $request->tipe_admin,
+            'status'     => $request->status,
+        ]);
+
+        return redirect()->route('pembayaran.index')->with('success', 'Metode pembayaran berhasil ditambahkan.');
+    }
+
+    public function edit($id)
+    {
+        $pembayaran = Pembayaran::findOrFail($id);
         return view('admin.pembayaran.edit', compact('pembayaran'));
     }
 
-    public function update(Request $request, Pembayaran $pembayaran)
-{
-    $request->validate([
-        'nama' => 'required',
-        'logo' => 'nullable|image|mimes:png,jpg,jpeg|max:2048',
-        'tipe' => 'required|in:QRIS,e-wallet,store,VA',
-        'admin' => 'required|numeric|min:0',
-        'tipe_admin' => 'required|in:persen,rupiah',
-        'status' => 'required|boolean',
-    ]);
+    public function update(Request $request, $id)
+    {
+        $pembayaran = Pembayaran::findOrFail($id);
 
-    $data = $request->only('nama', 'tipe', 'admin', 'tipe_admin', 'status');
+        $request->validate([
+            'nama'       => 'required|string|max:255',
+            'logo'       => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            'tipe'       => 'required|string',
+            'admin'      => 'required|numeric',
+            'tipe_admin' => 'required|in:persen,rupiah',
+            'status'     => 'required|boolean',
+        ]);
 
-    if ($request->hasFile('logo')) {
-        $data['logo'] = $request->file('logo')->store('logos_pembayaran', 'public');
+        $data = [
+            'nama'       => $request->nama,
+            'tipe'       => $request->tipe,
+            'admin'      => $request->admin,
+            'tipe_admin' => $request->tipe_admin,
+            'status'     => $request->status,
+        ];
+
+        if ($request->hasFile('logo')) {
+            if ($pembayaran->logo && Storage::disk('public')->exists($pembayaran->logo)) {
+                Storage::disk('public')->delete($pembayaran->logo);
+            }
+            $data['logo'] = $request->file('logo')->store('pembayaran', 'public');
+        }
+
+        $pembayaran->update($data);
+
+        return redirect()->route('pembayaran.index')->with('success', 'Metode pembayaran berhasil diperbarui.');
     }
 
-    $pembayaran->update($data);
-
-    return redirect()->route('pembayaran.index')->with('success', 'Metode pembayaran diperbarui.');
-}
-
-
-    public function destroy(Pembayaran $pembayaran)
+    public function destroy($id)
     {
+        $pembayaran = Pembayaran::findOrFail($id);
+
         if ($pembayaran->logo && Storage::disk('public')->exists($pembayaran->logo)) {
             Storage::disk('public')->delete($pembayaran->logo);
         }
 
         $pembayaran->delete();
 
-        return redirect()->route('pembayaran.index')->with('success', 'Metode pembayaran dihapus.');
+        return redirect()->route('pembayaran.index')->with('success', 'Metode pembayaran berhasil dihapus.');
     }
 }

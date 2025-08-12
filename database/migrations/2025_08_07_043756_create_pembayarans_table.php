@@ -16,8 +16,8 @@ return new class extends Migration
             $table->string('nama');
             $table->string('logo');
             $table->enum('tipe', ['QRIS', 'e-wallet', 'store', 'VA']);
-            $table->integer('admin');
-            $table->boolean('tipe_admin');
+            $table->decimal('admin', 8, 2);
+            $table->enum('tipe_admin', ['persen', 'rupiah']);
             $table->boolean('status')->default(1);
             $table->timestamps();
         });
