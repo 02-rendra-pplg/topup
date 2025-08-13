@@ -7,13 +7,16 @@
     <h2>Selamat Datang, {{ auth('admin')->user()->name }}</h2>
     <div class="row mt-5">
         <div class="col-md-4">
-            <a href="{{ route('games.index') }}" class="btn btn-primary btn-lg w-100 mb-3">Setting Games</a>
+            <a href="{{ route('games.index') }}" class="btn btn-danger btn-lg w-100 mb-3">Setting Games</a>
         </div>
         <div class="col-md-4">
-            <a href="{{ route('pembayaran.index') }}" class="btn btn-success btn-lg w-100 mb-3">Metode Pembayaran</a>
+            <a href="{{ route('pembayaran.index') }}" class="btn btn-warning btn-lg w-100 mb-3">Metode Pembayaran</a>
         </div>
         <div class="col-md-4">
             <a href="{{ route('flashsale.index') }}" class="btn btn-success btn-lg w-100 mb-3">FlashSale</a>
+        </div>
+        <div class="col-md-4">
+            <a href="{{ route('banner.index') }}" class="btn btn-primary btn-lg w-100 mb-3">Banner</a>
         </div>
     </div>
 </div>

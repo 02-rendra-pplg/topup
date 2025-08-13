@@ -1,6 +1,6 @@
 <style>
     .flash-sale-card {
-        background: linear-gradient(135deg, #4ab7ff , #2291db);
+        background: linear-gradient(135deg,#1078bd, #249dee );
         border-radius: 12px;
         padding: 12px;
         display: flex;
@@ -63,7 +63,7 @@
             <div class="col-md-3 col-sm-6">
                 <div class="flash-sale-card">
                     <div class="flash-sale-top">
-                        <img src="{{ asset('storage/'.$sale->gambar) }}" alt="{{ $sale->nama_promo }}" class="flash-sale-img">
+                        <img src="{{ asset('storage/flashsale/'.$sale->gambar) }}" alt="{{ $sale->nama_promo }}" class="flash-sale-img">
                         <div>
                             <div class="flash-sale-title">{{ strtoupper($sale->nama_promo) }}</div>
                             @if ($sale->tipe == 'bonus')

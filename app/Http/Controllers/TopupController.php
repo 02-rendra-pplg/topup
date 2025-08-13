@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Banner;
 use App\Models\FlashSale;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -15,7 +16,9 @@ class TopupController extends Controller
             ->where('berakhir', '>=', now())
             ->get();
 
-        return view('topup.index', compact('flashSales'));
+        $banners = Banner::latest()->get();
+
+        return view('topup.index', compact('flashSales','banners'));
     }
 
 public function show($slug)
@@ -42,6 +45,9 @@ public function show($slug)
         ->where('mulai', '<=', now())
         ->where('berakhir', '>=', now())
         ->get();
+
+        $banners = Banner::orderByDesc('created_at')->get();
+
 
     $curl = curl_init();
     curl_setopt_array($curl, array(
@@ -85,6 +91,7 @@ curl_close($curl);
         'type' => $game['type'],
         'list' => $list_game['hrg'],
         'flashSales' => $flashSales,
+        'banners' => $banners,
     ]);
 }
 

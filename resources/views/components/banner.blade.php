@@ -1,18 +1,14 @@
 <div class="container my-4">
     <div id="bannerCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="2000">
         <div class="carousel-inner">
-            <div class="carousel-item active">
-                <img src="{{ asset('images/Baner.jpeg') }}" class="d-block w-100 rounded" alt="Banner 1" style="max-height: 300px; object-fit: cover;">
-            </div>
-            <div class="carousel-item">
-                <img src="{{ asset('images/Baner1.jpg') }}" class="d-block w-100 rounded" alt="Banner 2" style="max-height: 300px; object-fit: cover;">
-            </div>
-            <div class="carousel-item">
-                <img src="{{ asset('images/Baner2.png') }}" class="d-block w-100 rounded" alt="Banner 3" style="max-height: 300px; object-fit: cover;">
-            </div>
-            <div class="carousel-item">
-                <img src="{{ asset('images/Baner3.jpeg') }}" class="d-block w-100 rounded" alt="Banner 4" style="max-height: 300px; object-fit: cover;">
-            </div>
+            @foreach($banners as $key => $banner)
+                <div class="carousel-item {{ $key == 0 ? 'active' : '' }}">
+                    <img src="{{ asset('storage/'.$banner->gambar) }}"
+                         class="d-block w-100 rounded"
+                         alt="Banner {{ $key+1 }}"
+                         style="max-height: 300px; object-fit: cover;">
+                </div>
+            @endforeach
         </div>
 
         <button class="carousel-control-prev" type="button" data-bs-target="#bannerCarousel" data-bs-slide="prev">
@@ -23,10 +19,10 @@
         </button>
 
         <div class="carousel-indicators">
-            <button type="button" data-bs-target="#bannerCarousel" data-bs-slide-to="0" class="active"></button>
-            <button type="button" data-bs-target="#bannerCarousel" data-bs-slide-to="1"></button>
-            <button type="button" data-bs-target="#bannerCarousel" data-bs-slide-to="2"></button>
-            <button type="button" data-bs-target="#bannerCarousel" data-bs-slide-to="3"></button>
+            @foreach($banners as $key => $banner)
+                <button type="button" data-bs-target="#bannerCarousel" data-bs-slide-to="{{ $key }}"
+                    class="{{ $key == 0 ? 'active' : '' }}"></button>
+            @endforeach
         </div>
     </div>
 </div>
