@@ -7,6 +7,7 @@ use App\Models\Banner;
 use App\Models\FlashSale;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Validator;
 
 class TopupController extends Controller
 {
@@ -18,7 +19,6 @@ class TopupController extends Controller
             ->get();
 
         $banners = Banner::latest()->get();
-
         $games = Game::all();
 
         return view('topup.index', compact('flashSales', 'banners', 'games'));
@@ -35,7 +35,7 @@ class TopupController extends Controller
 
         $banners = Banner::orderByDesc('created_at')->get();
 
-        // --- Perbaikan: encode hanya parameter id ---
+        // Pastikan parameter id di-encode agar spasi menjadi %20
         $parsedUrl = parse_url($game->url_api);
         parse_str($parsedUrl['query'] ?? '', $queryParams);
 
@@ -50,22 +50,14 @@ class TopupController extends Controller
         curl_setopt_array($curl, [
             CURLOPT_URL => $encodedUrl,
             CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_ENCODING => '',
-            CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => 0,
+            CURLOPT_TIMEOUT => 10,
             CURLOPT_FOLLOWLOCATION => true,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_CUSTOMREQUEST => 'GET',
         ]);
 
         $response = curl_exec($curl);
 
         if ($response === false) {
-            dd([
-                'curl_error' => curl_error($curl),
-                'curl_errno' => curl_errno($curl),
-                'info' => curl_getinfo($curl)
-            ]);
+            abort(500, 'Gagal menghubungi server harga: ' . curl_error($curl));
         }
 
         curl_close($curl);
@@ -73,7 +65,7 @@ class TopupController extends Controller
         $list_game = json_decode($response, true);
 
         if (!$list_game || !isset($list_game['hrg'])) {
-            return abort(500, 'Gagal mengambil data dari server.');
+            abort(500, 'Gagal mengambil data harga dari server.');
         }
 
         return view('topup.form', [
@@ -111,32 +103,25 @@ class TopupController extends Controller
     {
         $method = "aes-128-ecb";
         $key = date("dmdYmdm");
+
         $imei = $this->encrypt_aes("FFFFFFFFB50A26BBFFFFFFFFF2972AA0", $method, $key);
 
         $curl = curl_init();
-
-        curl_setopt_array($curl, array(
+        curl_setopt_array($curl, [
             CURLOPT_URL => 'https://ceklaporan.com/android/qrisbayarinject',
             CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_ENCODING => '',
-            CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => 0,
-            CURLOPT_FOLLOWLOCATION => true,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
             CURLOPT_CUSTOMREQUEST => 'POST',
             CURLOPT_POSTFIELDS => 'imei=' . $imei . '&kode=encrypt_aes(kode)&nohp=encrypt_aes(nohp)&nom=encrypt_aes(nom)&tujuan=encrypt_aes(tujuan)&kode_produk=encrypt_aes(kode_produk)',
-            CURLOPT_HTTPHEADER => array(
-                'Content-Type: application/x-www-form-urlencoded'
-            ),
-        ));
+            CURLOPT_HTTPHEADER => ['Content-Type: application/x-www-form-urlencoded'],
+        ]);
 
         $response = curl_exec($curl);
-
         curl_close($curl);
-        echo $response;
+
+        return $response;
     }
 
-    function encrypt_aes($string, $method, $key)
+    private function encrypt_aes($string, $method, $key)
     {
         return openssl_encrypt($string, $method, $key);
     }

@@ -2,27 +2,67 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Game;
 use App\Models\Order;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class OrderController extends Controller
 {
     public function store(Request $request)
     {
+        // Validasi input
         $request->validate([
-            'game_id' => 'required',
-            'user_id' => 'required',
-            'price'   => 'required|numeric',
-            'payment_method' => 'required',
+            'game_id'        => 'required|integer|exists:games,id',
+            'user_id'        => 'required|string',
+            'price'          => 'required|numeric|min:1',
+            'payment_method' => 'required|string',
+            'server_id'      => 'nullable|string',
+            'whatsapp'       => 'nullable|string',
+            'nominal'        => 'nullable|string',
         ]);
 
+        // Ambil data game dari database
+        $game = Game::findOrFail((int) $request->game_id);
+
+        // Simpan order ke database
         $order = Order::create([
-            'game_id' => $request->game_id,
-            'user_id' => $request->user_id,
-            'price'   => $request->price,
+            'game_id'        => $game->id,
+            'game_name'      => $game->name,
+            'user_id'        => $request->user_id,
+            'server_id'      => $request->server_id,
+            'whatsapp'       => $request->whatsapp,
+            'nominal'        => $request->nominal,
+            'price'          => $request->price,
             'payment_method' => $request->payment_method,
-            'status'  => 'pending',
+            'status'         => 'pending',
+            'qris_payload'   => null,
+            'qris_image_url' => null,
+            'expired_at'     => now()->addMinutes(15),
         ]);
+
+        // Panggil API QRIS
+        $response = Http::post('https://api-qris-provider.com/create', [
+            'order_id' => $order->id,
+            'amount'   => $order->price,
+            'expired'  => $order->expired_at->timestamp,
+        ]);
+
+        if ($response->successful()) {
+            $data = $response->json();
+
+            $order->update([
+                'qris_payload'   => $data['payload'] ?? null,
+                'qris_image_url' => $data['qr_image_url'] ?? null,
+            ]);
+        } else {
+            Log::error('Gagal membuat QRIS', [
+                'order_id' => $order->id,
+                'response' => $response->body()
+            ]);
+            return back()->withErrors(['payment' => 'Gagal membuat QRIS, silakan coba lagi.']);
+        }
 
         return redirect()->route('orders.show', $order->id);
     }
@@ -30,6 +70,16 @@ class OrderController extends Controller
     public function show($id)
     {
         $order = Order::findOrFail($id);
-        return view('qris.show', compact('order'));
+
+        return view('topup.qris', [
+            'qrisData' => [
+                'qris'    => $order->qris_payload,
+                'image'   => $order->qris_image_url,
+                'expired' => $order->expired_at,
+                'total'   => $order->price,
+                'id'      => $order->id,
+            ],
+            'id' => $order->id
+        ]);
     }
 }
