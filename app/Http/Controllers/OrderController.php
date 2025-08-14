@@ -16,7 +16,6 @@ class OrderController extends Controller
             'payment_method' => 'required',
         ]);
 
-        // Simpan data pesanan
         $order = Order::create([
             'game_id' => $request->game_id,
             'user_id' => $request->user_id,
@@ -25,7 +24,6 @@ class OrderController extends Controller
             'status'  => 'pending',
         ]);
 
-        // Redirect ke halaman QRIS (pakai route orders.show)
         return redirect()->route('orders.show', $order->id);
     }
 

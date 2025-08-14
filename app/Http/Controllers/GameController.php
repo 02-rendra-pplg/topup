@@ -25,7 +25,7 @@ class GameController extends Controller
         'name' => 'required',
         'logo' => 'required|image|mimes:png,jpg,jpeg,webp|max:2048',
         'tipe' => 'required|integer',
-        'url_api' => 'required|url',
+        'url_api' => 'required|string',
         'logo_diamond' => 'required|image|mimes:png,jpg,jpeg,webp|max:2048'
     ]);
 
@@ -54,7 +54,7 @@ class GameController extends Controller
         $request->validate([
             'name' => 'required',
             'tipe' => 'required|integer',
-            'url_api' => 'required|url',
+            'url_api' => 'required|string',
             'logo' => 'nullable|image|mimes:png,jpg,jpeg,webp|max:2048',
             'logo_diamond' => 'nullable|image|mimes:png,jpg,jpeg,webp|max:2048'
         ]);
