@@ -61,6 +61,7 @@
                         <input type="hidden" name="game_name" value="{{ $namaGame ?? '' }}">
                         <input type="hidden" name="price" id="priceInput" required>
                         <input type="hidden" name="nominal" id="nominalInput" required>
+                        <input type="hidden" name="kode_produk" id="produk" required>
                         <input type="hidden" name="payment_method" id="paymentMethod" value="qris">
 
                         {{-- Informasi Pelanggan --}}
@@ -88,7 +89,8 @@
                                     <button type="button"
                                         class="btn btn-outline-light w-100 pilih-nominal text-start"
                                         data-nominal="{{ $val['nama'] }}"
-                                        data-harga="{{ $harga_bersih }}">
+                                        data-harga="{{ $harga_bersih }}"
+                                        data-kode="{{ $val['kode']; }}">
                                         <div class="small">{{ $val['nama'] }}</div>
                                         <div class="fw-semibold">Rp {{ number_format($harga_bersih, 0, ',', '.') }}</div>
                                     </button>
@@ -158,11 +160,14 @@ document.addEventListener('DOMContentLoaded', function () {
     const priceInput   = document.getElementById('priceInput');
     const nominalInput = document.getElementById('nominalInput');
     const payMethodInp = document.getElementById('paymentMethod');
+    const produk = document.getElementById('produk');
 
     nominalBtns.forEach(btn => {
         btn.addEventListener('click', function () {
             const nominal = this.dataset.nominal;
             const harga   = this.dataset.harga;
+            const kode   = this.dataset.kode;
+            produk.value = kode;
             nominalInput.value = nominal;
             priceInput.value   = harga;
             document.getElementById('qrisHarga').innerText = formatRupiah(harga);

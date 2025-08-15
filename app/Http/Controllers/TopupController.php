@@ -13,7 +13,7 @@ class TopupController extends Controller
     private $games = [
         'mobile-legends'       => ['nama' => 'Mobile Legends', 'type' => '2id', 'id' => 'MOBILELEGEND'],
         'pubg-mobile'          => ['nama' => 'PUBG Mobile', 'type' => '1id', 'id' => 'PUBGM'],
-        'free-fire'            => ['nama' => 'Free Fire', 'type' => '1id', 'id' => 'DIAMOND_FREEFIRE'],
+        'free-fire'            => ['nama' => 'Free Fire', 'type' => '1id', 'id' => 'DIAMOND%20FREEFIRE'],
         'genshin-impact'       => ['nama' => 'Genshin Impact', 'type' => '1id', 'id' => 'GENSHIN'],
         'delta-force-garena'   => ['nama' => 'Delta Force Garena', 'type' => '1id', 'id' => 'DFG'],
         'delta-force-steam'    => ['nama' => 'Delta Force Steam', 'type' => '1id', 'id' => 'DFS'],
@@ -76,7 +76,7 @@ class TopupController extends Controller
             'slug'       => $slug,
             'namaGame'   => $game['nama'],
             'type'       => $game['type'],
-            'gameId'     => $game['id'],
+            'gameId'     => $game['id'], // string
             'list'       => $list_game['hrg'],
             'flashSales' => $flashSales,
             'banners'    => $banners,
@@ -88,13 +88,14 @@ class TopupController extends Controller
         // Ambil semua game_id dari $this->games
         $validGameIds = array_column($this->games, 'id');
 
+        // Validasi string dan in array
         $validator = Validator::make($request->all(), [
-            'game_id'  => 'required|in:' . implode(',', $validGameIds),
-            'user_id'  => 'required',
-            'nominal'  => 'required',
+            'game_id'  => 'required|string|in:' . implode(',', $validGameIds),
+            'user_id'  => 'required|string',
+            'nominal'  => 'required|string',
             'harga'    => 'required|numeric',
-            'whatsapp' => 'required',
-            'server_id'=> 'nullable',
+            'whatsapp' => 'required|string',
+            'server_id'=> 'nullable|string',
         ]);
 
         if ($validator->fails()) {
@@ -106,6 +107,7 @@ class TopupController extends Controller
         return back()->with('success', 'Top-up berhasil diproses!');
     }
 
+    // Optional: metode beli / QRIS
     public function beli()
     {
         $method = "aes-128-ecb";
