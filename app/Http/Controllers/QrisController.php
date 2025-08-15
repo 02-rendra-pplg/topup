@@ -11,7 +11,6 @@ class QrisController extends Controller
 {
     public function kirimQris(Request $request)
     {
-        // Validasi input
         $request->validate([
             'imei'         => 'required',
             'kode'         => 'required',
@@ -22,7 +21,6 @@ class QrisController extends Controller
         ]);
 
         try {
-            // Enkripsi semua data
             $data = [
                 'imei'        => $this->encrypt_aes($request->imei),
                 'kode'        => $this->encrypt_aes($request->kode),
@@ -32,24 +30,19 @@ class QrisController extends Controller
                 'kode_produk' => $this->encrypt_aes($request->kode_produk),
             ];
 
-            // Logging data yang dikirim (tanpa info sensitif jika mau aman)
             Log::info('Data terkirim ke API QRIS', $data);
 
-            // Kirim ke API eksternal
             $response = $this->sendToQrisApi($data);
             $decoded = json_decode($response, true);
 
-            // Logging response dari API
             Log::info('Response dari API QRIS', $decoded ?? []);
 
-            // Pastikan struktur response sesuai
             if (isset($decoded['qris']) || isset($decoded['qrCode'])) {
                 $qrCode  = $decoded['qris'] ?? $decoded['qrCode'] ?? null;
                 $expired = $decoded['expired'] ?? $decoded['expire_at'] ?? null;
                 $id      = $decoded['id'] ?? null;
                 $total   = $decoded['total'] ?? $request->nom;
 
-                // Jika request via AJAX
                 if ($request->ajax() || $request->wantsJson()) {
                     return response()->json([
                         'success' => true,
@@ -61,12 +54,11 @@ class QrisController extends Controller
                     ]);
                 }
 
-                // Fallback ke view
                return view('topup.qris', [
-    'qrisData' => $decoded,
-    'id'       => $id ?? 'N/A',
-    'qrSvg'    => QrCode::size(250)->generate($qrCode), // generate QR langsung
-]);
+                'qrisData' => $decoded,
+                'id'       => $id ?? 'N/A',
+                'qrSvg'    => QrCode::size(250)->generate($qrCode),
+            ]);
             } else {
                 return $this->handleError($request, 'QRIS gagal diproses.');
             }
@@ -79,7 +71,6 @@ class QrisController extends Controller
 
     private function sendToQrisApi(array $data)
     {
-        // Versi HTTP Client Laravel
         $response = Http::asForm()
             ->timeout(30)
             ->post(env('QRIS_API_URL'), $data);

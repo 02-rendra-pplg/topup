@@ -5,5 +5,5 @@
 @section('content')
     @include('components.banner', ['banners' => $banners])
     @include('components.flash-sale')
-    @include('components.game-list')
+    @include('components.game-list', ['games' => $games])
 @endsection

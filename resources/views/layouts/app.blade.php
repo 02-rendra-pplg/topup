@@ -96,7 +96,9 @@
 </div>
 
 <main>
+    <div class="container">
     @yield('content')
+    </div>
 </main>
 
 <div class="footer mt-5 text-white" style= "padding-top: 50px;">
