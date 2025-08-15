@@ -11,6 +11,19 @@ use Illuminate\Support\Facades\Validator;
 
 class TopupController extends Controller
 {
+    // Data game untuk validasi
+    private $games = [
+        'mobile-legends'       => ['nama' => 'Mobile Legends', 'type' => '2id', 'id' => 'MOBILELEGEND'],
+        'pubg-mobile'          => ['nama' => 'PUBG Mobile', 'type' => '1id', 'id' => 'PUBGM'],
+        'free-fire'            => ['nama' => 'Free Fire', 'type' => '1id', 'id' => 'DIAMOND%20FREEFIRE'],
+        'genshin-impact'       => ['nama' => 'Genshin Impact', 'type' => '1id', 'id' => 'GENSHIN'],
+        'delta-force-garena'   => ['nama' => 'Delta Force Garena', 'type' => '1id', 'id' => 'DFG'],
+        'delta-force-steam'    => ['nama' => 'Delta Force Steam', 'type' => '1id', 'id' => 'DFS'],
+        'magic-chess-go-go'    => ['nama' => 'Magic Chess GO.GO', 'type' => '2id', 'id' => 'MAGICCHESS'],
+        'free-fire-max'        => ['nama' => 'Free Fire Max', 'type' => '1id', 'id' => 'FFMAX'],
+        'honor-of-king'        => ['nama' => 'Honor OF King', 'type' => '1id', 'id' => 'HOK'],
+    ];
+
     public function index()
     {
         $flashSales = FlashSale::where('status', 1)
@@ -35,7 +48,7 @@ class TopupController extends Controller
 
         $banners = Banner::orderByDesc('created_at')->get();
 
-        // Pastikan parameter id di-encode agar spasi menjadi %20
+        // Encode parameter id agar spasi menjadi %20
         $parsedUrl = parse_url($game->url_api);
         parse_str($parsedUrl['query'] ?? '', $queryParams);
 
@@ -72,6 +85,7 @@ class TopupController extends Controller
             'slug'       => $slug,
             'namaGame'   => $game->name,
             'type'       => $game->tipe,
+            'gameId'     => $game->id,
             'list'       => $list_game['hrg'],
             'flashSales' => $flashSales,
             'banners'    => $banners,
@@ -80,12 +94,22 @@ class TopupController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
-            'user_id'  => 'required',
-            'nominal'  => 'required',
-            'harga'    => 'required|numeric',
-            'whatsapp' => 'required',
+        // Ambil semua game_id dari $this->games
+        $validGameIds = array_column($this->games, 'id');
+
+        // Validasi
+        $validator = Validator::make($request->all(), [
+            'game_id'   => 'required|string|in:' . implode(',', $validGameIds),
+            'user_id'   => 'required|string',
+            'nominal'   => 'required|string',
+            'harga'     => 'required|numeric',
+            'whatsapp'  => 'required|string',
+            'server_id' => 'nullable|string',
         ]);
+
+        if ($validator->fails()) {
+            return back()->withErrors($validator)->withInput();
+        }
 
         $server_id = $request->input('server_id');
         $game = $request->input('game');
@@ -99,6 +123,7 @@ class TopupController extends Controller
         return back()->with('success', 'Top-up berhasil diproses!');
     }
 
+    // Optional: metode beli / QRIS
     public function beli()
     {
         $method = "aes-128-ecb";
