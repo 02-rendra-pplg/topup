@@ -38,6 +38,7 @@ class TopupController extends Controller
 
         $parsedUrl = parse_url($game->url_api);
         parse_str($parsedUrl['query'] ?? '', $queryParams);
+       
 
         if (isset($queryParams['id'])) {
             $queryParams['id'] = urlencode($queryParams['id']);
@@ -112,6 +113,7 @@ class TopupController extends Controller
         $harga     = $request->input('harga');
         $whatsapp  = $request->input('whatsapp');
 
+
         $game = Game::find($game_id);
 
         Log::info("Topup: {$game->name} | $user_id | $server_id | $nominal | $harga | $whatsapp");
@@ -119,6 +121,7 @@ class TopupController extends Controller
         return back()->with('success', 'Top-up berhasil diproses!');
     }
 
+    // Optional: metode beli / QRIS (masih dummy)
     public function beli()
     {
         $method = "aes-128-ecb";
