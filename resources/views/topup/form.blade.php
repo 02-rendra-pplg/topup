@@ -9,10 +9,10 @@
             <div class="card h-100 shadow" style="background-color: #1f2937; border-radius: 12px;">
                 <div class="card-body p-4 text-white">
                     <div class="d-flex align-items-center mb-3">
-                        <img src="{{ asset('images/games/mlbb.png') }}" alt="{{ $namaGame }}" width="60" class="rounded me-3">
+                        <img src="{{ asset('storage/'.$game->logo) }}" alt="{{ $game->name }}" width="60" class="rounded me-3">
                         <div>
                             <span class="badge" style="background-color: #484bec;">{{ $publisher ?? 'Moonton' }}</span>
-                            <h5 class="mb-0 text-white">{{ $namaGame }}</h5>
+                            <h5 class="mb-0 text-white">{{ $game->name }}</h5>
                         </div>
                     </div>
 
@@ -26,8 +26,8 @@
                     <hr class="border-light">
 
                     <p class="text-light small mb-3">
-                        Top up Diamond {{ $namaGame }} hanya dalam hitungan detik!<br>
-                        Masukkan User ID & Server MLBB Anda, pilih jumlah Diamond, lakukan pembayaran, dan Diamond langsung masuk ke akun Anda.
+                        Top up {{ $game->name }} hanya dalam hitungan detik!<br>
+                        Masukkan {{ $game->tipe == 2 ? 'User ID & Server ID' : 'User ID' }}, pilih jumlah, lakukan pembayaran, dan item langsung masuk ke akun Anda.
                     </p>
 
                     <div class="alert alert-warning text-dark small mb-0">
@@ -57,8 +57,8 @@
                         @csrf
 
                         {{-- Field wajib --}}
-                        <input type="hidden" name="game_id" value="{{ $gameId }}">
-                        <input type="hidden" name="game_name" value="{{ $namaGame ?? '' }}">
+                        <input type="hidden" name="game_id" value="{{ $game->id }}">
+                        <input type="hidden" name="game_name" value="{{ $game->name }}">
                         <input type="hidden" name="price" id="priceInput" required>
                         <input type="hidden" name="nominal" id="nominalInput" required>
                         <input type="hidden" name="kode_produk" id="produk" required>
@@ -67,16 +67,24 @@
                         {{-- Informasi Pelanggan --}}
                         <h5 class="mb-3 text-white">Informasi Pelanggan</h5>
                         <div class="row g-3">
-                            <div class="col-md-{{ $type === '2id' ? '6' : '12' }}">
-                                <input type="text" name="user_id" class="form-control bg-white text-dark" placeholder="User ID" required>
+                            {{-- User ID --}}
+                            <div class="col-md-{{ $game->tipe == 2 ? '6' : '12' }}">
+                                <input type="text" name="user_id" class="form-control bg-white text-dark"
+                                       placeholder="User ID" required>
                             </div>
-                            @if ($type === '2id')
+
+                            {{-- Server ID kalau tipe = 2 --}}
+                            @if ($game->tipe == 2)
                             <div class="col-md-6">
-                                <input type="text" name="server_id" class="form-control bg-white text-dark" placeholder="Server ID" required>
+                                <input type="text" name="server_id" class="form-control bg-white text-dark"
+                                       placeholder="Server ID" required>
                             </div>
                             @endif
+
+                            {{-- WhatsApp --}}
                             <div class="col-12">
-                                <input type="text" name="whatsapp" class="form-control bg-white text-dark" placeholder="08xxxxxxxxxx" required>
+                                <input type="text" name="whatsapp" class="form-control bg-white text-dark"
+                                       placeholder="08xxxxxxxxxx" required>
                             </div>
                         </div>
 
@@ -126,9 +134,9 @@
                                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                                 </div>
                                 <div class="modal-body">
-                                    <p><strong>Game:</strong> {{ $namaGame }}</p>
+                                    <p><strong>Game:</strong> {{ $game->name }}</p>
                                     <p><strong>User ID:</strong> <span id="konfirmasiUserID"></span></p>
-                                    @if ($type === '2id')
+                                    @if ($game->tipe == 2)
                                     <p><strong>Server ID:</strong> <span id="konfirmasiServerID"></span></p>
                                     @endif
                                     <p><strong>Nominal:</strong> <span id="konfirmasiNominal"></span></p>
@@ -160,13 +168,13 @@ document.addEventListener('DOMContentLoaded', function () {
     const priceInput   = document.getElementById('priceInput');
     const nominalInput = document.getElementById('nominalInput');
     const payMethodInp = document.getElementById('paymentMethod');
-    const produk = document.getElementById('produk');
+    const produk       = document.getElementById('produk');
 
     nominalBtns.forEach(btn => {
         btn.addEventListener('click', function () {
             const nominal = this.dataset.nominal;
             const harga   = this.dataset.harga;
-            const kode   = this.dataset.kode;
+            const kode    = this.dataset.kode;
             produk.value = kode;
             nominalInput.value = nominal;
             priceInput.value   = harga;

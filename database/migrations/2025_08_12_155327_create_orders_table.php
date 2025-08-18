@@ -11,18 +11,21 @@ return new class extends Migration
      */
     public function up(): void
     {
-Schema::create('orders', function (Blueprint $table) {
-    $table->id();
-    $table->string('game_name'); // nama game atau produk
-    $table->string('user_id'); // ID pengguna game
-    $table->string('server_id')->nullable(); // kalau gamenya punya server ID
-    $table->decimal('amount', 10, 2); // jumlah harga
-    $table->string('payment_method'); // contoh: 'qris'
-    $table->string('status')->default('pending'); // pending, paid, failed
-    $table->string('qris_invoice_id')->nullable(); // ID transaksi dari QRIS API
-    $table->timestamps();
-});
-
+        Schema::create('orders', function (Blueprint $table) {
+            $table->id();
+            $table->string('game_id')->nullable();
+            $table->string('game_name')->nullable();
+            $table->string('user_id')->nullable();
+            $table->string('server_id')->nullable();
+            $table->string('whatsapp')->nullable();
+            $table->string('nominal')->nullable();
+            $table->decimal('amount', 10, 2)->nullable();
+            $table->decimal('total', 15, 2)->nullable();
+            $table->string('payment_method')->nullable();
+            $table->string('status')->default('pending');
+            $table->string('qris_invoice_id')->nullable();
+            $table->timestamps();
+        });
     }
 
     /**

@@ -3,30 +3,18 @@
 namespace App\Http\Controllers;
 
 use App\Models\Order;
+use App\Models\Game;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class OrderController extends Controller
 {
-    private $gameNames = [
-        'MOBILELEGEND'       => 'Mobile Legends',
-        'PUBGM'              => 'PUBG Mobile',
-        'DIAMOND%20FREEFIRE' => 'Free Fire',
-        'GENSHIN'            => 'Genshin Impact',
-        'DFG'                => 'Delta Force Garena',
-        'DFS'                => 'Delta Force Steam',
-        'MAGICCHESS'         => 'Magic Chess GO.GO',
-        'FFMAX'              => 'Free Fire Max',
-        'HOK'                => 'Honor of King',
-    ];
-
     public function store(Request $request)
     {
         // Validasi request
         $request->validate([
-            'game_id'        => 'required|string|in:' . implode(',', array_keys($this->gameNames)),
+            'game_id'        => 'required|integer|exists:games,id',
             'user_id'        => 'required|string',
             'price'          => 'required|numeric|min:1',
             'payment_method' => 'required|string',
@@ -35,13 +23,19 @@ class OrderController extends Controller
             'nominal'        => 'nullable|string',
         ]);
 
-        // Ambil nama game
-        $gameName = $this->gameNames[$request->game_id] ?? 'Unknown Game';
+        // Ambil data game dari DB
+        $game = Game::findOrFail($request->game_id);
 
-        // Simpan order di DB
+        // Kalau tipe game = 2 → server_id wajib
+        if ($game->tipe == 2 && empty($request->server_id)) {
+            return back()->withErrors(['server_id' => 'Server ID wajib diisi untuk game ini.'])
+                         ->withInput();
+        }
+
+        // Simpan order
         $order = Order::create([
-            'game_id'        => $request->game_id,
-            'game_name'      => $gameName,
+            'game_id'        => $game->id,
+            'game_name'      => $game->name,
             'user_id'        => $request->user_id,
             'server_id'      => $request->server_id,
             'whatsapp'       => $request->whatsapp,
@@ -56,20 +50,18 @@ class OrderController extends Controller
         ]);
 
         try {
-            // Data ke API QRIS
+            // Contoh: data ke API QRIS
             $data = [
                 'imei'        => $this->encrypt_aes("FFFFFFFFB50A26BBFFFFFFFFF2972AA0"),
                 'kode'        => $this->encrypt_aes("J0132"),
-                'nohp'        => $this->encrypt_aes("082234075846"),
-                'nom'         => $this->encrypt_aes($request->nominal),
-                'tujuan'      => $this->encrypt_aes($request->tujuan),
-                'kode_produk' => $this->encrypt_aes($request->kode_produk),
+                'nohp'        => $this->encrypt_aes($request->whatsapp ?? "08xxxx"),
+                'nom'         => $this->encrypt_aes($request->price),
+                'tujuan'      => $this->encrypt_aes($request->user_id),
+                'kode_produk' => $this->encrypt_aes($request->kode_produk ?? ''),
             ];
 
-            // Kirim ke API QRIS
             $response = $this->sendToQrisApi($data);
-
-            $decoded = json_decode($response, true);
+            $decoded  = json_decode($response, true);
 
             if (isset($decoded['qrCode'])) {
                 $qrCode = $decoded['qrCode'] ?? null;
@@ -99,96 +91,50 @@ class OrderController extends Controller
         }
     }
 
+    public function show($id)
+    {
+        $order = Order::findOrFail($id);
+
+        return view('topup.qris', [
+            'qrisData' => [
+                'qris'    => $order->qris_payload,
+                'image'   => $order->qris_image_url,
+                'expired' => $order->expired_at,
+                'total'   => $order->amount,
+                'id'      => $order->id,
+            ],
+        ]);
+    }
+
     private function sendToQrisApi(array $data)
     {
         $apiUrl = env('QRIS_API_URL');
 
-        $curl = curl_init();
-        curl_setopt_array($curl, [
+        $ch = curl_init();
+        curl_setopt_array($ch, [
             CURLOPT_URL            => $apiUrl,
             CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_ENCODING       => '',
-            CURLOPT_MAXREDIRS      => 10,
-            CURLOPT_TIMEOUT        => 0,
-            CURLOPT_FOLLOWLOCATION => true,
-            CURLOPT_HTTP_VERSION   => CURL_HTTP_VERSION_1_1,
-            CURLOPT_CUSTOMREQUEST  => 'POST',
+            CURLOPT_POST           => true,
             CURLOPT_POSTFIELDS     => http_build_query($data),
             CURLOPT_HTTPHEADER     => ['Content-Type: application/x-www-form-urlencoded'],
         ]);
 
-        $response = curl_exec($curl);
-        curl_close($curl);
-
-        return $response;
-    }
-
-    function encrypt_aes($string)
-    {
-        $method = "aes-128-ecb";
-        $key    = date("dmdYmdm");
-
-        return openssl_encrypt($string, $method, $key);
-    }
-
-    public function createQris(Request $request)
-    {
-        $method = "aes-128-ecb";
-        $key    = date("dmdYmdm");
-
-        $encrypt = function ($string) use ($method, $key) {
-            return openssl_encrypt($string, $method, $key);
-        };
-
-        $imei        = "FFFFFFFFB50A26BBFFFFFFFFF2972AA0";
-        $kode        = "J0132";
-        $nohp        = $request->whatsapp;
-        $nom         = $request->price;
-        $tujuan      = $request->user_id;
-        $kode_produk = $request->kode_produk;
-
-        $postData = [
-            'imei'        => $encrypt($imei),
-            'kode'        => $encrypt($kode),
-            'nohp'        => $encrypt($nohp),
-            'nom'         => $encrypt($nom),
-            'tujuan'      => $encrypt($tujuan),
-            'kode_produk' => $encrypt($kode_produk),
-        ];
-
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, "https://ceklaporan.com/android/qrisbayarinject");
-        curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($postData));
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         $response = curl_exec($ch);
         $err      = curl_error($ch);
         curl_close($ch);
 
         if ($err) {
-            return back()->with('error', "Gagal membuat QRIS: $err");
+            Log::error("QRIS API Error: $err");
+            return null;
         }
 
-        $result = json_decode($response, true);
-        if (!$result || empty($result['qris_url'])) {
-            return back()->with('error', 'Gagal membuat QRIS, silakan coba lagi.');
-        }
+        return $response;
+    }
 
-        Order::create([
-            'game_id'        => $request->game_id,
-            'game_name'      => $request->game_name,
-            'user_id'        => $request->user_id,
-            'server_id'      => $request->server_id,
-            'whatsapp'       => $nohp,
-            'nominal'        => $nom,
-            'price'          => $nom,
-            'amount'         => $nom,
-            'payment_method' => 'qris',
-            'status'         => 'pending',
-            'qris_payload'   => $result['qris_url'],
-            'expired_at'     => now()->addMinutes(15),
-        ]);
-
-        return redirect()->route('qris.show', ['url' => $result['qris_url']]);
+    private function encrypt_aes($string)
+    {
+        $method = "aes-128-ecb";
+        $key    = date("dmdYmdm");
+        return openssl_encrypt($string, $method, $key);
     }
 }

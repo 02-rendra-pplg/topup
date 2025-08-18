@@ -11,19 +11,6 @@ use Illuminate\Support\Facades\Validator;
 
 class TopupController extends Controller
 {
-    // Data game untuk validasi
-    private $games = [
-        'mobile-legends'       => ['nama' => 'Mobile Legends', 'type' => '2id', 'id' => 'MOBILELEGEND'],
-        'pubg-mobile'          => ['nama' => 'PUBG Mobile', 'type' => '1id', 'id' => 'PUBGM'],
-        'free-fire'            => ['nama' => 'Free Fire', 'type' => '1id', 'id' => 'DIAMOND%20FREEFIRE'],
-        'genshin-impact'       => ['nama' => 'Genshin Impact', 'type' => '1id', 'id' => 'GENSHIN'],
-        'delta-force-garena'   => ['nama' => 'Delta Force Garena', 'type' => '1id', 'id' => 'DFG'],
-        'delta-force-steam'    => ['nama' => 'Delta Force Steam', 'type' => '1id', 'id' => 'DFS'],
-        'magic-chess-go-go'    => ['nama' => 'Magic Chess GO.GO', 'type' => '2id', 'id' => 'MAGICCHESS'],
-        'free-fire-max'        => ['nama' => 'Free Fire Max', 'type' => '1id', 'id' => 'FFMAX'],
-        'honor-of-king'        => ['nama' => 'Honor OF King', 'type' => '1id', 'id' => 'HOK'],
-    ];
-
     public function index()
     {
         $flashSales = FlashSale::where('status', 1)
@@ -32,7 +19,7 @@ class TopupController extends Controller
             ->get();
 
         $banners = Banner::latest()->get();
-        $games = Game::all();
+        $games   = Game::all();
 
         return view('topup.index', compact('flashSales', 'banners', 'games'));
     }
@@ -48,17 +35,22 @@ class TopupController extends Controller
 
         $banners = Banner::orderByDesc('created_at')->get();
 
-        // Encode parameter id agar spasi menjadi %20
+        // Ambil & parse URL API dari database
         $parsedUrl = parse_url($game->url_api);
         parse_str($parsedUrl['query'] ?? '', $queryParams);
 
+        // Pastikan ID produk di-encode
         if (isset($queryParams['id'])) {
             $queryParams['id'] = urlencode($queryParams['id']);
         }
 
-        $encodedUrl = $parsedUrl['scheme'] . '://' . $parsedUrl['host'] .
-            ($parsedUrl['path'] ?? '') . '?' . http_build_query($queryParams);
+        $encodedUrl =
+            ($parsedUrl['scheme'] ?? 'https') . '://' .
+            ($parsedUrl['host'] ?? '') .
+            ($parsedUrl['path'] ?? '') . '?' .
+            http_build_query($queryParams);
 
+        // Request ke API harga
         $curl = curl_init();
         curl_setopt_array($curl, [
             CURLOPT_URL => $encodedUrl,
@@ -82,10 +74,12 @@ class TopupController extends Controller
         }
 
         return view('topup.form', [
+            'game'       => $game,
             'slug'       => $slug,
             'namaGame'   => $game->name,
-            'type'       => $game->tipe,
             'gameId'     => $game->id,
+            'type'       => $game->tipe,
+            'logo'       => $game->logo,
             'list'       => $list_game['hrg'],
             'flashSales' => $flashSales,
             'banners'    => $banners,
@@ -94,12 +88,9 @@ class TopupController extends Controller
 
     public function store(Request $request)
     {
-        // Ambil semua game_id dari $this->games
-        $validGameIds = array_column($this->games, 'id');
-
-        // Validasi
+        // Validasi langsung ke tabel games
         $validator = Validator::make($request->all(), [
-            'game_id'   => 'required|string|in:' . implode(',', $validGameIds),
+            'game_id'   => 'required|exists:games,id',
             'user_id'   => 'required|string',
             'nominal'   => 'required|string',
             'harga'     => 'required|numeric',
@@ -112,22 +103,24 @@ class TopupController extends Controller
         }
 
         $server_id = $request->input('server_id');
-        $game = $request->input('game');
-        $user_id = $request->input('user_id');
-        $nominal = $request->input('nominal');
-        $harga = $request->input('harga');
-        $whatsapp = $request->input('whatsapp');
+        $game_id   = $request->input('game_id');
+        $user_id   = $request->input('user_id');
+        $nominal   = $request->input('nominal');
+        $harga     = $request->input('harga');
+        $whatsapp  = $request->input('whatsapp');
 
-        Log::info("Topup: $game | $user_id | $server_id | $nominal | $harga | $whatsapp");
+        $game = Game::find($game_id);
+
+        Log::info("Topup: {$game->name} | $user_id | $server_id | $nominal | $harga | $whatsapp");
 
         return back()->with('success', 'Top-up berhasil diproses!');
     }
 
-    // Optional: metode beli / QRIS
+    // Optional: metode beli / QRIS (masih dummy)
     public function beli()
     {
         $method = "aes-128-ecb";
-        $key = date("dmdYmdm");
+        $key    = date("dmdYmdm");
 
         $imei = $this->encrypt_aes("FFFFFFFFB50A26BBFFFFFFFFF2972AA0", $method, $key);
 
@@ -135,9 +128,9 @@ class TopupController extends Controller
         curl_setopt_array($curl, [
             CURLOPT_URL => 'https://ceklaporan.com/android/qrisbayarinject',
             CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_CUSTOMREQUEST => 'POST',
-            CURLOPT_POSTFIELDS => 'imei=' . $imei . '&kode=encrypt_aes(kode)&nohp=encrypt_aes(nohp)&nom=encrypt_aes(nom)&tujuan=encrypt_aes(tujuan)&kode_produk=encrypt_aes(kode_produk)',
-            CURLOPT_HTTPHEADER => ['Content-Type: application/x-www-form-urlencoded'],
+            CURLOPT_CUSTOMREQUEST  => 'POST',
+            CURLOPT_POSTFIELDS     => 'imei=' . $imei . '&kode=encrypt_aes(kode)&nohp=encrypt_aes(nohp)&nom=encrypt_aes(nom)&tujuan=encrypt_aes(tujuan)&kode_produk=encrypt_aes(kode_produk)',
+            CURLOPT_HTTPHEADER     => ['Content-Type: application/x-www-form-urlencoded'],
         ]);
 
         $response = curl_exec($curl);
