@@ -4,7 +4,6 @@
 <div class="container my-5">
     <div class="row g-4">
 
-        {{-- Kiri: Deskripsi Game --}}
         <div class="col-md-5">
             <div class="card h-100 shadow" style="background-color: #1f2937; border-radius: 12px;">
                 <div class="card-body p-4 text-white">
@@ -37,12 +36,10 @@
             </div>
         </div>
 
-        {{-- Kanan: Form --}}
         <div class="col-md-7">
             <div class="card shadow" style="background-color: #1f2937;">
                 <div class="card-body p-4 text-white">
 
-                    {{-- Error validasi --}}
                     @if ($errors->any())
                         <div class="alert alert-danger">
                             <ul class="mb-0">
@@ -56,7 +53,6 @@
                     <form method="POST" action="{{ route('orders.store') }}" id="topupForm">
                         @csrf
 
-                        {{-- Field wajib --}}
                         <input type="hidden" name="game_id" value="{{ $game->id }}">
                         <input type="hidden" name="game_name" value="{{ $game->name }}">
                         <input type="hidden" name="price" id="priceInput" required>
@@ -64,16 +60,13 @@
                         <input type="hidden" name="kode_produk" id="produk" required>
                         <input type="hidden" name="payment_method" id="paymentMethod" value="qris">
 
-                        {{-- Informasi Pelanggan --}}
                         <h5 class="mb-3 text-white">Informasi Pelanggan</h5>
                         <div class="row g-3">
-                            {{-- User ID --}}
                             <div class="col-md-{{ $game->tipe == 2 ? '6' : '12' }}">
                                 <input type="text" name="user_id" class="form-control bg-white text-dark"
                                        placeholder="User ID" required>
                             </div>
 
-                            {{-- Server ID kalau tipe = 2 --}}
                             @if ($game->tipe == 2)
                             <div class="col-md-6">
                                 <input type="text" name="server_id" class="form-control bg-white text-dark"
@@ -81,32 +74,56 @@
                             </div>
                             @endif
 
-                            {{-- WhatsApp --}}
                             <div class="col-12">
                                 <input type="text" name="whatsapp" class="form-control bg-white text-dark"
                                        placeholder="08xxxxxxxxxx" required>
                             </div>
                         </div>
 
-                        {{-- Pilih Nominal --}}
-                        <h5 class="mt-4 mb-2 text-white">Pilih Nominal Top Up</h5>
-                        <div class="row g-2">
-                            @foreach ($list as $val)
-                                @php $harga_bersih = (int) preg_replace('/\D/', '', $val['hrg']); @endphp
-                                <div class="col-6 col-md-4">
-                                    <button type="button"
-                                        class="btn btn-outline-light w-100 pilih-nominal text-start"
-                                        data-nominal="{{ $val['nama'] }}"
-                                        data-harga="{{ $harga_bersih }}"
-                                        data-kode="{{ $val['kode']; }}">
-                                        <div class="small">{{ $val['nama'] }}</div>
-                                        <div class="fw-semibold">Rp {{ number_format($harga_bersih, 0, ',', '.') }}</div>
-                                    </button>
-                                </div>
-                            @endforeach
-                        </div>
+                  <h5 class="mt-4 mb-2 text-white">Pilih Nominal Top Up</h5>
+                    <div class="row g-2">
+                        @foreach ($list as $val)
+                            @php
+                                $harga_bersih = (int) preg_replace('/\D/', '', $val['hrg']);
 
-                        {{-- Metode Pembayaran --}}
+                                $logo = $game->logo_diamond ?? null;
+
+                                if (Str::contains(strtolower($val['nama']), 'weekly') && $game->logo_weekly) {
+                                    $logo = $game->logo_weekly;
+                                } elseif (Str::contains(strtolower($val['nama']), 'member') && $game->logo_member) {
+                                    $logo = $game->logo_member;
+                                }
+                            @endphp
+
+                            <div class="col-6 col-md-4">
+                                <button type="button"
+                                    class="btn btn-outline-light w-100 pilih-nominal d-flex align-items-center p-2"
+                                    data-nominal="{{ $val['nama'] }}"
+                                    data-harga="{{ $harga_bersih }}"
+                                    data-kode="{{ $val['kode'] }}"
+                                    style="border-radius: 12px; transition: all 0.2s ease;">
+
+                                    <div class="flex-shrink-0 me-3">
+                                        @if ($logo)
+                                            <img src="{{ asset('storage/' . $logo) }}"
+                                                alt="Logo {{ $val['nama'] }}"
+                                                style="width:40px; height:40px; object-fit:contain;">
+                                        @endif
+                                    </div>
+
+                                    <div class="text-start">
+                                        <div class="fw-semibold text-white" style="font-size: 14px;">
+                                            {{ $val['nama'] }}
+                                        </div>
+                                        <div class="fw-bold text-info" style="font-size: 13px;">
+                                            Rp {{ number_format($harga_bersih, 0, ',', '.') }}
+                                        </div>
+                                    </div>
+                                </button>
+                            </div>
+                        @endforeach
+                    </div>
+
                         <div class="mt-5">
                             <h6 class="text-white">Metode Pembayaran</h6>
                             <div id="qrisBox" class="rounded p-3 d-flex justify-content-between align-items-center mb-3 qris-toggle border border-2"
@@ -119,13 +136,11 @@
                             </div>
                         </div>
 
-                        {{-- Tombol Submit --}}
                         <div class="mt-4 d-grid">
                             <button type="button" id="btnKirimPesanan" class="btn fw-bold" style="background-color: #ffffff; color: #000;">Kirim Pesanan</button>
                         </div>
                     </form>
 
-                    {{-- Modal Konfirmasi --}}
                     <div class="modal fade" id="modalKonfirmasi" tabindex="-1" aria-labelledby="modalKonfirmasiLabel" aria-hidden="true">
                         <div class="modal-dialog modal-dialog-centered">
                             <div class="modal-content text-dark">
@@ -149,7 +164,6 @@
                             </div>
                         </div>
                     </div>
-                    {{-- /Modal --}}
                 </div>
             </div>
         </div>
@@ -158,7 +172,7 @@
 
 <style>
 .qris-selected { border-color: #ff9800 !important; box-shadow: 0 0 5px rgba(255, 152, 0, 0.5); }
-.pilih-nominal.active { background-color: #ff9800; color: #fff; }
+.pilih-nominal.active { background-color: #3498db; color: #484bec; }
 </style>
 
 <script>

@@ -83,6 +83,8 @@ class TopupController extends Controller
             'list'       => $list_game['hrg'],
             'flashSales' => $flashSales,
             'banners'    => $banners,
+            'diamondImage' => $game->logo_diamond, 
+
         ]);
     }
 

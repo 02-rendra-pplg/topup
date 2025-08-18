@@ -7,7 +7,7 @@
 
 @if ($errors->any())
     <div class="alert alert-danger">
-        <ul>
+        <ul class="mb-0">
             @foreach ($errors->all() as $error)
                 <li>{{ $error }}</li>
             @endforeach
@@ -18,26 +18,43 @@
 <form action="{{ route('games.store') }}" method="POST" enctype="multipart/form-data">
     @csrf
     <div class="mb-3">
-        <label>Nama Game</label>
-        <input type="text" name="name" class="form-control" required>
+        <label class="form-label">Nama Game</label>
+        <input type="text" name="name" class="form-control" value="{{ old('name') }}" required>
     </div>
+
     <div class="mb-3">
-        <label>Logo Game</label>
+        <label class="form-label">Logo Game</label>
         <input type="file" name="logo" class="form-control" accept="image/*" required>
     </div>
+
     <div class="mb-3">
-        <label>Tipe</label>
-        <input type="number" name="tipe" class="form-control" required>
+        <label class="form-label">Tipe</label>
+        <input type="number" name="tipe" class="form-control" value="{{ old('tipe') }}" required>
     </div>
+
     <div class="mb-3">
-        <label>URL API</label>
-        <input type="url" name="url_api" class="form-control" required>
+        <label class="form-label">URL API</label>
+        <input type="url" name="url_api" class="form-control" value="{{ old('url_api') }}" required>
     </div>
+
     <div class="mb-3">
-        <label>Logo Diamond</label>
+        <label class="form-label">Logo Diamond</label>
         <input type="file" name="logo_diamond" class="form-control" accept="image/*" required>
     </div>
-    <button type="submit" class="btn btn-success">Simpan</button>
-    <a href="{{ route('games.index') }}" class="btn btn-secondary">Batal</a>
+
+    <div class="mb-3">
+        <label class="form-label">Logo Weekly</label>
+        <input type="file" name="logo_weekly" class="form-control" accept="image/*">
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Logo Member</label>
+        <input type="file" name="logo_member" class="form-control" accept="image/*">
+    </div>
+
+    <div class="d-flex gap-2">
+        <button type="submit" class="btn btn-success">Simpan</button>
+        <a href="{{ route('games.index') }}" class="btn btn-secondary">Batal</a>
+    </div>
 </form>
 @endsection

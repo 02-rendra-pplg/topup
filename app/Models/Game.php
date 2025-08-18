@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Str; 
+use Illuminate\Support\Str;
 
 class Game extends Model
 {
@@ -17,6 +17,8 @@ class Game extends Model
         'tipe',
         'url_api',
         'logo_diamond',
+        'logo_weekly',
+        'logo_member',
     ];
 
     protected static function booted()

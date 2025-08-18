@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Storage;
 
 class GameController extends Controller
 {
-        public function index()
+    public function index()
     {
         $games = Game::all();
         return view('admin.games.index', compact('games'));
@@ -21,30 +21,35 @@ class GameController extends Controller
 
     public function store(Request $request)
     {
-       $request->validate([
-        'name' => 'required',
-        'logo' => 'required|image|mimes:png,jpg,jpeg,webp|max:2048',
-        'tipe' => 'required|integer',
-        'url_api' => 'required|string',
-        'logo_diamond' => 'required|image|mimes:png,jpg,jpeg,webp|max:2048'
-    ]);
+        $request->validate([
+            'name'          => 'required',
+            'logo'          => 'required|image|mimes:png,jpg,jpeg,webp|max:2048',
+            'tipe'          => 'required|integer',
+            'url_api'       => 'required|string',
+            'logo_diamond'  => 'required|image|mimes:png,jpg,jpeg,webp|max:2048',
+            'logo_weekly'   => 'nullable|image|mimes:png,jpg,jpeg,webp|max:2048',
+            'logo_member'   => 'nullable|image|mimes:png,jpg,jpeg,webp|max:2048',
+        ]);
 
-
-        $logoPath = $request->file('logo')->store('logos', 'public');
-        $diamondPath = $request->file('logo_diamond')->store('diamond_logos', 'public');
+        $logoPath     = $request->file('logo')->store('logos', 'public');
+        $diamondPath  = $request->file('logo_diamond')->store('diamond_logos', 'public');
+        $weeklyPath   = $request->file('logo_weekly')?->store('weekly_logos', 'public');
+        $memberPath   = $request->file('logo_member')?->store('member_logos', 'public');
 
         Game::create([
-            'name' => $request->name,
-            'logo' => $logoPath,
-            'tipe' => $request->tipe,
-            'url_api' => $request->url_api,
-            'logo_diamond' => $diamondPath
+            'name'          => $request->name,
+            'logo'          => $logoPath,
+            'tipe'          => $request->tipe,
+            'url_api'       => $request->url_api,
+            'logo_diamond'  => $diamondPath,
+            'logo_weekly'   => $weeklyPath,
+            'logo_member'   => $memberPath,
         ]);
 
         return redirect()->route('games.index')->with('success', 'Game berhasil ditambahkan');
     }
 
-        public function edit(Game $game)
+    public function edit(Game $game)
     {
         return view('admin.games.edit', compact('game'));
     }
@@ -52,11 +57,13 @@ class GameController extends Controller
     public function update(Request $request, Game $game)
     {
         $request->validate([
-            'name' => 'required',
-            'tipe' => 'required|integer',
-            'url_api' => 'required|string',
-            'logo' => 'nullable|image|mimes:png,jpg,jpeg,webp|max:2048',
-            'logo_diamond' => 'nullable|image|mimes:png,jpg,jpeg,webp|max:2048'
+            'name'          => 'required',
+            'tipe'          => 'required|integer',
+            'url_api'       => 'required|string',
+            'logo'          => 'nullable|image|mimes:png,jpg,jpeg,webp|max:2048',
+            'logo_diamond'  => 'nullable|image|mimes:png,jpg,jpeg,webp|max:2048',
+            'logo_weekly'   => 'nullable|image|mimes:png,jpg,jpeg,webp|max:2048',
+            'logo_member'   => 'nullable|image|mimes:png,jpg,jpeg,webp|max:2048',
         ]);
 
         $data = $request->only('name', 'tipe', 'url_api');
@@ -67,6 +74,12 @@ class GameController extends Controller
         if ($request->hasFile('logo_diamond')) {
             $data['logo_diamond'] = $request->file('logo_diamond')->store('diamond_logos', 'public');
         }
+        if ($request->hasFile('logo_weekly')) {
+            $data['logo_weekly'] = $request->file('logo_weekly')->store('weekly_logos', 'public');
+        }
+        if ($request->hasFile('logo_member')) {
+            $data['logo_member'] = $request->file('logo_member')->store('member_logos', 'public');
+        }
 
         $game->update($data);
 
@@ -75,12 +88,10 @@ class GameController extends Controller
 
     public function destroy(Game $game)
     {
-        if ($game->logo && Storage::disk('public')->exists($game->logo)) {
-            Storage::disk('public')->delete($game->logo);
-        }
-
-        if ($game->logo_diamond && Storage::disk('public')->exists($game->logo_diamond)) {
-            Storage::disk('public')->delete($game->logo_diamond);
+        foreach (['logo', 'logo_diamond', 'logo_weekly', 'logo_member'] as $field) {
+            if ($game->$field && Storage::disk('public')->exists($game->$field)) {
+                Storage::disk('public')->delete($game->$field);
+            }
         }
 
         $game->delete();
