@@ -12,7 +12,6 @@ class OrderController extends Controller
 {
     public function store(Request $request)
     {
-        // Validasi request
         $request->validate([
             'game_id'        => 'required|integer|exists:games,id',
             'user_id'        => 'required|string',
@@ -23,16 +22,12 @@ class OrderController extends Controller
             'nominal'        => 'nullable|string',
         ]);
 
-        // Ambil data game dari DB
         $game = Game::findOrFail($request->game_id);
 
-        // Kalau tipe game = 2 → server_id wajib
         if ($game->tipe == 2 && empty($request->server_id)) {
-            return back()->withErrors(['server_id' => 'Server ID wajib diisi untuk game ini.'])
-                         ->withInput();
+            return back()->withErrors(['server_id' => 'Server ID wajib diisi untuk game ini.'])->withInput();
         }
 
-        // Simpan order
         $order = Order::create([
             'game_id'        => $game->id,
             'game_name'      => $game->name,
@@ -50,21 +45,22 @@ class OrderController extends Controller
         ]);
 
         try {
-            // Contoh: data ke API QRIS
+            // Data yang harus dikirim ke API QRIS Inject
             $data = [
                 'imei'        => $this->encrypt_aes("FFFFFFFFB50A26BBFFFFFFFFF2972AA0"),
                 'kode'        => $this->encrypt_aes("J0132"),
-                'nohp'        => $this->encrypt_aes($request->whatsapp ?? "08xxxx"),
+                'nohp'        => $this->encrypt_aes("082234075846"),
                 'nom'         => $this->encrypt_aes($request->price),
                 'tujuan'      => $this->encrypt_aes($request->user_id),
-                'kode_produk' => $this->encrypt_aes($request->kode_produk ?? ''),
+                'kode_produk' => $this->encrypt_aes($request->kode_produk ?? 'ML5'),
             ];
-
+            // return http_build_query($data);
             $response = $this->sendToQrisApi($data);
+            // return $response;
             $decoded  = json_decode($response, true);
 
-            if (isset($decoded['qrCode'])) {
-                $qrCode = $decoded['qrCode'] ?? null;
+            if ($decoded && isset($decoded['qrCode'])) {
+                $qrCode = $decoded['qrCode'];
                 $image  = $decoded['qr_image_url'] ?? null;
 
                 $order->update([
@@ -108,7 +104,7 @@ class OrderController extends Controller
 
     private function sendToQrisApi(array $data)
     {
-        $apiUrl = env('QRIS_API_URL');
+        $apiUrl = "https://ceklaporan.com/android/qrisbayarinject";
 
         $ch = curl_init();
         curl_setopt_array($ch, [
@@ -134,7 +130,7 @@ class OrderController extends Controller
     private function encrypt_aes($string)
     {
         $method = "aes-128-ecb";
-        $key    = date("dmdYmdm");
+        $key    = date("dmdYmdm"); // contoh: 160820251608
         return openssl_encrypt($string, $method, $key);
     }
 }
