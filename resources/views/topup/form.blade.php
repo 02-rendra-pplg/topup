@@ -115,7 +115,7 @@
                                         <div class="fw-semibold text-white" style="font-size: 14px;">
                                             {{ $val['nama'] }}
                                         </div>
-                                        <div class="fw-bold text-info" style="font-size: 13px;">
+                                        <div class="fw-bold text-warning" style="font-size: 13px;">
                                             Rp {{ number_format($harga_bersih, 0, ',', '.') }}
                                         </div>
                                     </div>
@@ -172,7 +172,13 @@
 
 <style>
 .qris-selected { border-color: #ff9800 !important; box-shadow: 0 0 5px rgba(255, 152, 0, 0.5); }
-.pilih-nominal.active { background-color: #3498db; color: #484bec; }
+.pilih-nominal:hover,
+.pilih-nominal:focus,
+.pilih-nominal.active {
+    background-color: #3498db !important;
+    color: #fff !important;
+    border-color: #3498db !important;
+}
 </style>
 
 <script>
