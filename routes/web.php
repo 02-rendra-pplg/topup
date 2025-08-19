@@ -17,6 +17,7 @@ Route::get('/', function () {
 // Topup (list & detail produk topup)
 Route::get('/topup', [TopupController::class, 'index'])->name('topup.index');
 Route::get('/topup/{slug}', [TopupController::class, 'show'])->name('topup.show');
+Route::post('/topup/store', [TopupController::class, 'store'])->name('topup.store');
 
 // Order (buat order baru dan lihat detail order + QRIS)
 Route::post('/orders', [OrderController::class, 'store'])->name('orders.store');
