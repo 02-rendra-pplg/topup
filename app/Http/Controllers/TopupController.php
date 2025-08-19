@@ -35,11 +35,9 @@ class TopupController extends Controller
 
         $banners = Banner::orderByDesc('created_at')->get();
 
-        // Ambil & parse URL API dari database
         $parsedUrl = parse_url($game->url_api);
         parse_str($parsedUrl['query'] ?? '', $queryParams);
 
-        // Pastikan ID produk di-encode
         if (isset($queryParams['id'])) {
             $queryParams['id'] = urlencode($queryParams['id']);
         }
@@ -50,7 +48,6 @@ class TopupController extends Controller
             ($parsedUrl['path'] ?? '') . '?' .
             http_build_query($queryParams);
 
-        // Request ke API harga
         $curl = curl_init();
         curl_setopt_array($curl, [
             CURLOPT_URL => $encodedUrl,
@@ -83,14 +80,13 @@ class TopupController extends Controller
             'list'       => $list_game['hrg'],
             'flashSales' => $flashSales,
             'banners'    => $banners,
-            'diamondImage' => $game->logo_diamond, 
+            'diamondImage' => $game->logo_diamond,
 
         ]);
     }
 
     public function store(Request $request)
     {
-        // Validasi langsung ke tabel games
         $validator = Validator::make($request->all(), [
             'game_id'   => 'required|exists:games,id',
             'user_id'   => 'required|string',
@@ -109,7 +105,7 @@ class TopupController extends Controller
         $user_id   = $request->input('user_id');
         $nominal   = $request->input('nominal');
         $harga     = $request->input('harga');
-        $whatsapp  = $request->input('whatsapp');
+        $whatsapp  = $request->input('whatsapp'); 
 
         $game = Game::find($game_id);
 
@@ -118,7 +114,6 @@ class TopupController extends Controller
         return back()->with('success', 'Top-up berhasil diproses!');
     }
 
-    // Optional: metode beli / QRIS (masih dummy)
     public function beli()
     {
         $method = "aes-128-ecb";
