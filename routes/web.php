@@ -9,33 +9,53 @@ use App\Http\Controllers\FlashSaleController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\PembayaranController;
 
+/*
+|--------------------------------------------------------------------------
+| Web Routes
+|--------------------------------------------------------------------------
+*/
+
 // Halaman utama
 Route::get('/', function () {
     return view('pages.home');
+})->name('home');
+
+// =========================
+// Topup (list & detail produk topup)
+// =========================
+Route::prefix('topup')->group(function () {
+    Route::get('/', [TopupController::class, 'index'])->name('topup.index');         // list game
+    Route::get('/{slug}', [TopupController::class, 'show'])->name('topup.show');     // detail game
+    Route::post('/store', [TopupController::class, 'store'])->name('topup.store');   // simpan order topup
 });
 
-// Topup (list & detail produk topup)
-Route::get('/topup', [TopupController::class, 'index'])->name('topup.index');
-Route::get('/topup/{slug}', [TopupController::class, 'show'])->name('topup.show');
-Route::post('/topup/store', [TopupController::class, 'store'])->name('topup.store');
+// =========================
+// Orders (buat order baru & detail order)
+// =========================
+Route::prefix('orders')->group(function () {
+    Route::post('/', [OrderController::class, 'store'])->name('orders.store');
+    Route::get('/{id}', [OrderController::class, 'show'])->name('orders.show');
+});
 
-// Order (buat order baru dan lihat detail order + QRIS)
-Route::post('/orders', [OrderController::class, 'store'])->name('orders.store');
-Route::get('/orders/{id}', [OrderController::class, 'show'])->name('orders.show');
-
-// Halaman pembayaran QRIS (optional, misal untuk callback atau tampilan khusus)
+// =========================
+// Pembayaran QRIS
+// =========================
 Route::get('/qris/{order_id}', [PembayaranController::class, 'qris'])->name('pembayaran.qris');
 
-// Admin login dan area
+// =========================
+// Admin login & dashboard
+// =========================
 Route::get('/login-admin', [AdminController::class, 'logintampil'])->name('admin.login');
 Route::post('/login-admin', [AdminController::class, 'login'])->name('admin.login.post');
 
-Route::middleware('auth:admin')->group(function() {
+Route::middleware('auth:admin')->group(function () {
     Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
+
+    // Resource untuk manajemen
     Route::resource('games', GameController::class);
     Route::resource('pembayaran', PembayaranController::class);
     Route::resource('flashsale', FlashSaleController::class);
     Route::resource('banner', BannerController::class);
+
     Route::post('/logout-admin', [AdminController::class, 'logout'])->name('admin.logout');
 });
-

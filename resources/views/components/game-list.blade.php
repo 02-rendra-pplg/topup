@@ -1,23 +1,28 @@
-<div class="row gx-4 gy-4">
-    @forelse ($games as $game)
-        <div class="col-6 col-md-2 text-center">
-            <a href="{{ route('topup.show', ['slug' => $game->slug]) }}"
-               class="game-card text-decoration-none d-block p-3 rounded bg-dark h-100"
-               style="transition: transform 0.2s ease-in-out;">
-                <img src="{{ asset('storage/' . $game->logo) }}"
-                     class="img-fluid rounded mb-2"
-                     alt="{{ $game->name }}"
-                     style="max-height: 120px; object-fit: contain;">
-                <div class="text-white fw-semibold text-truncate" style="font-size: 14px;">
-                    {{ $game->name }}
+@extends('layouts.app')
+
+@section('content')
+<div class="container my-5">
+    <h3 class="mb-4 text-white">🎮 Pilih Game untuk Top Up</h3>
+
+    <div class="row">
+        @forelse($games as $game)
+            <div class="col-md-3 mb-4">
+                <div class="card h-100 shadow-sm">
+                    <img src="{{ asset('storage/'.$game->image) }}" class="card-img-top" alt="{{ $game->name }}">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ $game->name }}</h5>
+                        <a href="{{ route('topup.show', $game->slug) }}" class="btn btn-primary btn-sm">
+                            Top Up
+                        </a>
+                    </div>
                 </div>
-            </a>
-        </div>
-    @empty
-        <div class="col-12 text-center text-muted py-4">
-            Belum ada game yang tersedia.
-        </div>
-    @endforelse
+            </div>
+        @empty
+            <div class="col-12 text-center text-muted py-4">
+                Belum ada game yang tersedia.
+            </div>
+        @endforelse
+    </div>
 </div>
 
 <style>
@@ -25,3 +30,4 @@
     transform: scale(1.05);
 }
 </style>
+@endsection
