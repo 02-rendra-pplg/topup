@@ -23,6 +23,7 @@ class GameController extends Controller
     {
         $request->validate([
             'name'          => 'required',
+            'publisher'     => 'required|string|max:255',
             'logo'          => 'required|image|mimes:png,jpg,jpeg,webp|max:2048',
             'tipe'          => 'required|integer',
             'url_api'       => 'required|string',
@@ -38,6 +39,7 @@ class GameController extends Controller
 
         Game::create([
             'name'          => $request->name,
+            'publisher'     => $request->publisher,
             'logo'          => $logoPath,
             'tipe'          => $request->tipe,
             'url_api'       => $request->url_api,
@@ -58,6 +60,7 @@ class GameController extends Controller
     {
         $request->validate([
             'name'          => 'required',
+            'publisher'     => 'required|string|max:255',
             'tipe'          => 'required|integer',
             'url_api'       => 'required|string',
             'logo'          => 'nullable|image|mimes:png,jpg,jpeg,webp|max:2048',
@@ -66,7 +69,7 @@ class GameController extends Controller
             'logo_member'   => 'nullable|image|mimes:png,jpg,jpeg,webp|max:2048',
         ]);
 
-        $data = $request->only('name', 'tipe', 'url_api');
+        $data = $request->only('name', 'publisher', 'tipe', 'url_api');
 
         if ($request->hasFile('logo')) {
             $data['logo'] = $request->file('logo')->store('logos', 'public');

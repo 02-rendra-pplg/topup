@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Game;
 use App\Models\Banner;
 use App\Models\FlashSale;
+use App\Models\Pembayaran;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
@@ -70,6 +71,8 @@ class TopupController extends Controller
             abort(500, 'Gagal mengambil data harga dari server.');
         }
 
+        $pembayarans = Pembayaran::where('status', 1)->get();
+
         return view('topup.form', [
             'game'       => $game,
             'slug'       => $slug,
@@ -81,7 +84,8 @@ class TopupController extends Controller
             'flashSales' => $flashSales,
             'banners'    => $banners,
             'diamondImage' => $game->logo_diamond,
-
+            'pembayarans' => $pembayarans,
+            // 'publisher' => $game->publisher,
         ]);
     }
 
@@ -94,6 +98,7 @@ class TopupController extends Controller
             'harga'     => 'required|numeric',
             'whatsapp'  => 'required|string',
             'server_id' => 'nullable|string',
+            'pembayaran_id' => 'required|exists:pembayarans,id',
         ]);
 
         if ($validator->fails()) {
@@ -105,7 +110,7 @@ class TopupController extends Controller
         $user_id   = $request->input('user_id');
         $nominal   = $request->input('nominal');
         $harga     = $request->input('harga');
-        $whatsapp  = $request->input('whatsapp'); 
+        $whatsapp  = $request->input('whatsapp');
 
         $game = Game::find($game_id);
 

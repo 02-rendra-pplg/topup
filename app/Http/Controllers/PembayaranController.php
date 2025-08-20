@@ -99,13 +99,11 @@ class PembayaranController extends Controller
 
     public function qris($orderId)
 {
-    // Ambil data order dari database
     $order = \App\Models\Order::where('id', $orderId)->firstOrFail();
 
-    // Kirim ke view qris.blade.php
     return view('topup.qris', [
         'qrisData' => [
-            'qris' => $order->qris_payload, // payload atau URL QRIS
+            'qris' => $order->qris_payload,
             'expired' => $order->expired_at,
             'total' => $order->total,
             'id' => $order->id

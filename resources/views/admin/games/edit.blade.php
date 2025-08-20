@@ -24,6 +24,11 @@
         <input type="text" name="name" class="form-control" value="{{ old('name', $game->name) }}" required>
     </div>
 
+     <div class="mb-3">
+        <label class="form-label">Publisher</label>
+        <input type="text" name="publisher" class="form-control" value="{{ old('publisher', $game->publisher) }}" placeholder="Contoh: Moonton" required>
+    </div>
+
     <div class="mb-3">
         <label class="form-label">Logo Game</label><br>
         <img src="{{ asset('storage/'.$game->logo) }}" alt="{{ $game->name }}" width="120" class="mb-2">

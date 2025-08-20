@@ -23,6 +23,11 @@
     </div>
 
     <div class="mb-3">
+        <label class="form-label">Publisher</label>
+        <input type="text" name="publisher" class="form-control" value="{{ old('publisher') }}" placeholder="Contoh: Moonton" required>
+    </div>
+
+    <div class="mb-3">
         <label class="form-label">Logo Game</label>
         <input type="file" name="logo" class="form-control" accept="image/*" required>
     </div>
