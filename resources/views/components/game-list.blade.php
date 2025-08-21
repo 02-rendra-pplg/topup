@@ -1,10 +1,5 @@
-@extends('layouts.app')
-
-@section('content')
-<div class="container my-5">
-    <h3 class="mb-4 text-white">🎮 Pilih Game untuk Top Up</h3>
-
-   <div class="row gx-4 gy-4">
+<div class="row gx-4 gy-4">
+        <h4 class="mb-4 text-center">🎮 Pilih Game untuk Top Up</h4>
     @forelse ($games as $game)
         <div class="col-6 col-md-2 text-center">
             <a href="{{ route('topup.show', ['slug' => $game->slug]) }}"
@@ -26,11 +21,8 @@
     @endforelse
 </div>
 
-</div>
-
 <style>
 .game-card:hover {
     transform: scale(1.05);
 }
 </style>
-@endsection

@@ -22,7 +22,7 @@ class TopupController extends Controller
         $banners = Banner::latest()->get();
         $games   = Game::all();
 
-        return view('topup.index', compact('flashSales', 'banners', 'games'));
+        return view('pages.home', compact('flashSales', 'banners', 'games'));
     }
 
     public function show($slug)
@@ -47,7 +47,7 @@ class TopupController extends Controller
             ($parsedUrl['scheme'] ?? 'https') . '://' .
             ($parsedUrl['host'] ?? '') .
             ($parsedUrl['path'] ?? '') . '?' .
-            http_build_query($queryParams);  
+            http_build_query($queryParams);
 
         $curl = curl_init();
         curl_setopt_array($curl, [

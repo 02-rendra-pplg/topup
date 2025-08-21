@@ -88,7 +88,7 @@
             </li>
             <li class="nav-item">
                 <a href="/login" class="nav-link text-white d-flex align-items-center gap-2">
-                    <i class="bi bi-search"></i> Lacak Pesanan
+                    <i class="bi bi-search"></i> Lacak Transaksi
                 </a>
             </li>
         </ul>
