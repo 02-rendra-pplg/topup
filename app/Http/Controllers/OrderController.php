@@ -56,7 +56,7 @@ class OrderController extends Controller
             ];
             // return http_build_query($data);
             $response = $this->sendToQrisApi($data);
-            // return $response;
+            return $response;
             $decoded  = json_decode($response, true);
 
             if ($decoded && isset($decoded['qrCode'])) {
@@ -104,27 +104,55 @@ class OrderController extends Controller
 
     private function sendToQrisApi(array $data)
     {
-        $apiUrl = "https://ceklaporan.com/android/qrisbayarinject";
+        $apiUrl = "https://ceklaporan.com/api/payment_qris";
 
-        $ch = curl_init();
-        curl_setopt_array($ch, [
-            CURLOPT_URL            => $apiUrl,
+        // $ch = curl_init();
+        // curl_setopt_array($ch, [
+        //     CURLOPT_URL            => $apiUrl,
+        //     CURLOPT_RETURNTRANSFER => true,
+        //     CURLOPT_POST           => true,
+        //     CURLOPT_POSTFIELDS     => http_build_query($data),
+        //     CURLOPT_HTTPHEADER     => ['Content-Type: application/x-www-form-urlencoded'],
+        // ]);
+
+        // $response = curl_exec($ch);
+        // $err      = curl_error($ch);
+        // curl_close($ch);
+
+        // if ($err) {
+        //     Log::error("QRIS API Error: $err");
+        //     return null;
+        // }
+
+        // return $response;
+
+
+        $curl = curl_init();
+
+            curl_setopt_array($curl, array(
+            CURLOPT_URL => 'https://ceklaporan.com/android/qrisbayarinject',
             CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_POST           => true,
-            CURLOPT_POSTFIELDS     => http_build_query($data),
-            CURLOPT_HTTPHEADER     => ['Content-Type: application/x-www-form-urlencoded'],
-        ]);
+            CURLOPT_ENCODING => '',
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 0,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => 'POST',
+            CURLOPT_POSTFIELDS => http_build_query($data),
+            CURLOPT_HTTPHEADER => array(
+                'Content-Type: application/x-www-form-urlencoded'
+            ),
+            ));
 
-        $response = curl_exec($ch);
-        $err      = curl_error($ch);
-        curl_close($ch);
+            $response = curl_exec($curl);
+            $err      = curl_error($curl);
 
         if ($err) {
             Log::error("QRIS API Error: $err");
             return null;
         }
-
-        return $response;
+            curl_close($curl);
+            return $response;
     }
 
     private function encrypt_aes($string)

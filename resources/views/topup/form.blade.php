@@ -58,7 +58,7 @@
                         <input type="hidden" name="price" id="priceInput" required>
                         <input type="hidden" name="nominal" id="nominalInput" required>
                         <input type="hidden" name="kode_produk" id="produk" required>
-                        <input type="hidden" name="pembayaran_id" id="pembayaran_id">
+                        <input type="hidden" name="payment_method" id="payment_method">
 
                         <h5 class="mb-3 text-white">Informasi Pelanggan</h5>
                         <div class="row g-3">
@@ -206,7 +206,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const priceInput   = document.getElementById('priceInput');
     const nominalInput = document.getElementById('nominalInput');
     const produk       = document.getElementById('produk');
-    const pembayaranInput = document.getElementById('pembayaran_id');
+    const pembayaranInput = document.getElementById('payment_method');
 
     nominalBtns.forEach(btn => {
         btn.addEventListener('click', function () {

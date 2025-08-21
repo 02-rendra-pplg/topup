@@ -47,7 +47,7 @@ class TopupController extends Controller
             ($parsedUrl['scheme'] ?? 'https') . '://' .
             ($parsedUrl['host'] ?? '') .
             ($parsedUrl['path'] ?? '') . '?' .
-            http_build_query($queryParams);
+            http_build_query($queryParams);  
 
         $curl = curl_init();
         curl_setopt_array($curl, [
