@@ -6,6 +6,7 @@ use App\Models\Order;
 use App\Models\Game;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class OrderController extends Controller
@@ -20,6 +21,7 @@ class OrderController extends Controller
             'server_id'      => 'nullable|string',
             'whatsapp'       => 'nullable|string',
             'nominal'        => 'nullable|string',
+            'kode_produk'    => 'nullable|string',
         ]);
 
         $game = Game::findOrFail($request->game_id);
@@ -28,24 +30,28 @@ class OrderController extends Controller
             return back()->withErrors(['server_id' => 'Server ID wajib diisi untuk game ini.'])->withInput();
         }
 
+        // ✅ Buat trx_id unik
+        $trxId = 'ORD-' . now()->format('YmdHis') . '-' . strtoupper(Str::random(5));
+
+        // Buat order
         $order = Order::create([
-            'game_id'        => $game->id,
+            'trx_id'         => $trxId,
+            'game_id'        => $request->game_id,
             'game_name'      => $game->name,
             'user_id'        => $request->user_id,
             'server_id'      => $request->server_id,
             'whatsapp'       => $request->whatsapp,
             'nominal'        => $request->nominal,
             'price'          => $request->price,
-            'amount'         => $request->price,
+            'amount'         => $request->amount ?? $request->price,
             'payment_method' => $request->payment_method,
             'status'         => 'pending',
             'qris_payload'   => null,
-            'qris_image_url' => null,
-            'expired_at'     => now()->addMinutes(15),
+            'expired_at'     => now()->addMinutes(30),
         ]);
 
         try {
-            // Data yang harus dikirim ke API QRIS Inject
+            // Data yang dikirim ke API QRIS
             $data = [
                 'imei'        => $this->encrypt_aes("FFFFFFFFB50A26BBFFFFFFFFF2972AA0"),
                 'kode'        => $this->encrypt_aes("J0132"),
@@ -54,24 +60,23 @@ class OrderController extends Controller
                 'tujuan'      => $this->encrypt_aes($request->user_id),
                 'kode_produk' => $this->encrypt_aes($request->kode_produk ?? 'ML5'),
             ];
-            // return http_build_query($data);
+
             $response = $this->sendToQrisApi($data);
-            return $response;
             $decoded  = json_decode($response, true);
 
             if ($decoded && isset($decoded['qrCode'])) {
                 $qrCode = $decoded['qrCode'];
-                $image  = $decoded['qr_image_url'] ?? null;
 
+                // Update order dengan QRIS
                 $order->update([
                     'qris_payload'   => $qrCode,
-                    'qris_image_url' => $image,
+                    'qris_image_url' => $order->qris_image_url ?? '',
                 ]);
 
                 return view('topup.qris', [
                     'qrisData' => [
+                        'trx_id'  => $order->trx_id,
                         'qris'    => $qrCode,
-                        'image'   => $image,
                         'expired' => $order->expired_at,
                         'total'   => $order->price,
                         'id'      => $order->id,
@@ -93,72 +98,45 @@ class OrderController extends Controller
 
         return view('topup.qris', [
             'qrisData' => [
+                'trx_id'  => $order->trx_id,
                 'qris'    => $order->qris_payload,
-                'image'   => $order->qris_image_url,
+                'image'   => $order->qris_image_url ?? '',
                 'expired' => $order->expired_at,
-                'total'   => $order->amount,
+                'total'   => $order->amount ?? $order->price,
                 'id'      => $order->id,
             ],
+            'qrSvg' => $order->qris_payload ? QrCode::size(250)->generate($order->qris_payload) : null,
         ]);
     }
 
     private function sendToQrisApi(array $data)
     {
-        $apiUrl = "https://ceklaporan.com/api/payment_qris";
-
-        // $ch = curl_init();
-        // curl_setopt_array($ch, [
-        //     CURLOPT_URL            => $apiUrl,
-        //     CURLOPT_RETURNTRANSFER => true,
-        //     CURLOPT_POST           => true,
-        //     CURLOPT_POSTFIELDS     => http_build_query($data),
-        //     CURLOPT_HTTPHEADER     => ['Content-Type: application/x-www-form-urlencoded'],
-        // ]);
-
-        // $response = curl_exec($ch);
-        // $err      = curl_error($ch);
-        // curl_close($ch);
-
-        // if ($err) {
-        //     Log::error("QRIS API Error: $err");
-        //     return null;
-        // }
-
-        // return $response;
-
-
         $curl = curl_init();
 
-            curl_setopt_array($curl, array(
-            CURLOPT_URL => 'https://ceklaporan.com/android/qrisbayarinject',
+        curl_setopt_array($curl, [
+            CURLOPT_URL            => 'https://ceklaporan.com/api/payment_qris',
             CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_ENCODING => '',
-            CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => 0,
-            CURLOPT_FOLLOWLOCATION => true,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_CUSTOMREQUEST => 'POST',
-            CURLOPT_POSTFIELDS => http_build_query($data),
-            CURLOPT_HTTPHEADER => array(
-                'Content-Type: application/x-www-form-urlencoded'
-            ),
-            ));
+            CURLOPT_POST           => true,
+            CURLOPT_POSTFIELDS     => http_build_query($data),
+            CURLOPT_HTTPHEADER     => ['Content-Type: application/x-www-form-urlencoded'],
+        ]);
 
-            $response = curl_exec($curl);
-            $err      = curl_error($curl);
+        $response = curl_exec($curl);
+        $err      = curl_error($curl);
+        curl_close($curl);
 
         if ($err) {
             Log::error("QRIS API Error: $err");
             return null;
         }
-            curl_close($curl);
-            return $response;
+
+        return $response;
     }
 
     private function encrypt_aes($string)
     {
         $method = "aes-128-ecb";
-        $key    = date("dmdYmdm"); // contoh: 160820251608
+        $key    = date("dmdYmdm"); // contoh: 210820252108
         return openssl_encrypt($string, $method, $key);
     }
 }

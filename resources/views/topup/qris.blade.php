@@ -1,48 +1,74 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container my-5">
-    <h4 class="mb-3">QRIS Payment</h4>
+<div class="container my-5 d-flex justify-content-center">
+    <div class="card shadow-lg p-4 text-center" style="max-width: 500px; border-radius: 20px;">
+        
+        {{-- Header --}}
+        <h4 class="mb-3 fw-bold text-primary">QRIS Payment</h4>
 
-    @if ($errors->any())
-        <div class="alert alert-danger">
-            <ul class="mb-0">
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-    @endif
+        {{-- ID Transaksi --}}
+        <p class="mb-1">ID Transaksi:</p>
+        <h5 class="fw-bold">{{ $qrisData['trx_id'] ?? '-' }}</h5>
 
-    @php
-        use Illuminate\Support\Str;
+        {{-- Total --}}
+        @if(isset($qrisData['total']))
+            <p class="mt-2">Total Pembayaran</p>
+            <h4 class="text-success fw-bold">Rp {{ number_format($qrisData['total'], 0, ',', '.') }}</h4>
+        @endif
 
-        $qrCode  = $qrisData['image'] ?? $qrisData['qris'] ?? null;
-        $expired = $qrisData['expired'] ?? null;
-        $total   = $qrisData['total'] ?? null;
-        $trxId   = $id ?? $qrisData['id'] ?? 'N/A';
-    @endphp
+        {{-- Countdown Timer --}}
+        @if(isset($qrisData['expired']))
+            <p id="countdown" class="text-danger fw-bold mt-3"></p>
+        @endif
 
-    @if ($qrCode)
-        <div class="card p-4 shadow text-center">
-            <p>ID Transaksi: <strong>{{ $trxId }}</strong></p>
-            @if ($total)
-                <p>Total: <strong>Rp {{ number_format($total, 0, ',', '.') }}</strong></p>
-            @endif
-            @if ($expired)
-                <p class="text-danger">Berlaku sampai: <strong>{{ $expired }}</strong></p>
-            @endif
+        {{-- QR Code --}}
+        <div class="my-4 bg-white d-inline-block p-3 rounded shadow-sm">
+            @php
+                $qrCode = $qrisData['qris'] ?? '';
+            @endphp
 
             @if (Str::startsWith($qrCode, 'http'))
-                <img src="{{ $qrCode }}" alt="QR Code" class="img-fluid mb-3" style="max-width: 300px;">
+                <img src="{{ $qrCode }}" alt="QR Code" class="img-fluid" style="max-width: 280px;">
+            @elseif(!empty($qrCode))
+                {!! QrCode::size(280)->generate($qrCode) !!}
             @else
-                {!! QrCode::size(300)->generate($qrCode) !!}
+                <p class="text-muted">QR Code belum tersedia.</p>
             @endif
-
-            <p>Silakan scan QR Code di atas untuk melakukan pembayaran.</p>
         </div>
-    @else
-        <div class="alert alert-warning">QR Code tidak tersedia. Silakan coba lagi.</div>
-    @endif
+
+        <p class="text-muted">Silakan scan menggunakan aplikasi pembayaran:<br> 
+            DANA, OVO, GoPay, ShopeePay, BCA, dll.
+        </p>
+
+        {{-- Tombol Cek Status --}}
+        <a href="{{ route('orders.show', $qrisData['id'] ?? 0) }}" class="btn btn-lg btn-primary w-100 mt-3 rounded-pill fw-bold">
+            🔄 Cek Status Pembayaran
+        </a>
+    </div>
 </div>
+
+{{-- Countdown Script --}}
+@if(isset($qrisData['expired']))
+<script>
+    const expiredTime = new Date("{{ $qrisData['expired'] }}").getTime();
+    const countdownEl = document.getElementById("countdown");
+
+    const timer = setInterval(() => {
+        const now = new Date().getTime();
+        const distance = expiredTime - now;
+
+        if (distance <= 0) {
+            clearInterval(timer);
+            countdownEl.innerHTML = "❌ Waktu pembayaran habis.";
+            return;
+        }
+
+        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+        countdownEl.innerHTML = `Berlaku sampai: <strong>${minutes}m ${seconds}s</strong>`;
+    }, 1000);
+</script>
+@endif
 @endsection
