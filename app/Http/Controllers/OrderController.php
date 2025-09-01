@@ -33,6 +33,11 @@ class OrderController extends Controller
         // ✅ Buat trx_id unik
         $trxId = 'ORD-' . now()->format('YmdHis') . '-' . strtoupper(Str::random(5));
 
+        // ✅ Hitung biaya tambahan
+        $fee       = 1000; // biaya admin/fee QRIS
+        $unique    = rand(100, 999); // kode unik 3 digit
+        $total     = $request->price + $fee + $unique;
+
         // Buat order
         $order = Order::create([
             'trx_id'         => $trxId,
@@ -43,20 +48,22 @@ class OrderController extends Controller
             'whatsapp'       => $request->whatsapp,
             'nominal'        => $request->nominal,
             'price'          => $request->price,
-            'amount'         => $request->amount ?? $request->price,
+            'amount'         => $total,
             'payment_method' => $request->payment_method,
             'status'         => 'pending',
             'qris_payload'   => null,
             'expired_at'     => now()->addMinutes(30),
+            'fee'            => $fee,
+            'unique_code'    => $unique,
         ]);
 
         try {
             // Data yang dikirim ke API QRIS
             $data = [
-                'imei'        => $this->encrypt_aes("FFFFFFFFB50A26BBFFFFFFFFF2972AA0"),
-                'kode'        => $this->encrypt_aes("J0132"),
-                'nohp'        => $this->encrypt_aes("082234075846"),
-                'nom'         => $this->encrypt_aes($request->price),
+                'imei'        => $this->encrypt_aes("FFFFFFFFA8E24478000000005075E30C"),
+                'kode'        => $this->encrypt_aes("M10263"),
+                'nohp'        => $this->encrypt_aes("082229024046"),
+                'nom'         => $this->encrypt_aes($total), // ✅ kirim total
                 'tujuan'      => $this->encrypt_aes($request->user_id),
                 'kode_produk' => $this->encrypt_aes($request->kode_produk ?? 'ML5'),
             ];
@@ -75,11 +82,18 @@ class OrderController extends Controller
 
                 return view('topup.qris', [
                     'qrisData' => [
-                        'trx_id'  => $order->trx_id,
-                        'qris'    => $qrCode,
-                        'expired' => $order->expired_at,
-                        'total'   => $order->price,
-                        'id'      => $order->id,
+                        'trx_id'   => $order->trx_id,
+                        'qris'     => $qrCode,
+                        'expired'  => $order->expired_at,
+                        'price'    => $order->price,
+                        'fee'      => $order->fee,
+                        'unique'   => $order->unique_code,
+                        'total'    => $order->amount,
+                        'id'       => $order->id,
+                        'game'     => $order->game_name,
+                        'user_id'  => $order->user_id,
+                        'server'   => $order->server_id,
+                        'nominal'  => $order->nominal,
                     ],
                     'qrSvg' => QrCode::size(250)->generate($qrCode),
                 ]);
@@ -92,18 +106,25 @@ class OrderController extends Controller
         }
     }
 
-    public function show($id)
+        public function show($trxId)
     {
-        $order = Order::findOrFail($id);
+        $order = Order::where('trx_id', $trxId)->firstOrFail();
 
         return view('topup.qris', [
             'qrisData' => [
-                'trx_id'  => $order->trx_id,
-                'qris'    => $order->qris_payload,
-                'image'   => $order->qris_image_url ?? '',
-                'expired' => $order->expired_at,
-                'total'   => $order->amount ?? $order->price,
-                'id'      => $order->id,
+                'trx_id'   => $order->trx_id,
+                'qris'     => $order->qris_payload,
+                'image'    => $order->qris_image_url ?? '',
+                'expired'  => $order->expired_at,
+                'price'    => $order->price,
+                'fee'      => $order->fee ?? 0,
+                'unique'   => $order->unique_code ?? 0,
+                'total'    => $order->amount ?? $order->price,
+                'id'       => $order->id,
+                'game'     => $order->game_name,
+                'user_id'  => $order->user_id,
+                'server'   => $order->server_id,
+                'nominal'  => $order->nominal,
             ],
             'qrSvg' => $order->qris_payload ? QrCode::size(250)->generate($order->qris_payload) : null,
         ]);
