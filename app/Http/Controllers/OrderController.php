@@ -30,15 +30,12 @@ class OrderController extends Controller
             return back()->withErrors(['server_id' => 'Server ID wajib diisi untuk game ini.'])->withInput();
         }
 
-        // ✅ Buat trx_id unik
         $trxId = 'ORD-' . now()->format('YmdHis') . '-' . strtoupper(Str::random(5));
 
-        // ✅ Hitung biaya tambahan
-        $fee       = 1000; // biaya admin/fee QRIS
-        $unique    = rand(100, 999); // kode unik 3 digit
+        $fee       = 1000;
+        $unique    = rand(100, 999);
         $total     = $request->price + $fee + $unique;
 
-        // Buat order
         $order = Order::create([
             'trx_id'         => $trxId,
             'game_id'        => $request->game_id,
@@ -58,12 +55,11 @@ class OrderController extends Controller
         ]);
 
         try {
-            // Data yang dikirim ke API QRIS
             $data = [
                 'imei'        => $this->encrypt_aes("FFFFFFFFA8E24478000000005075E30C"),
                 'kode'        => $this->encrypt_aes("M10263"),
                 'nohp'        => $this->encrypt_aes("082229024046"),
-                'nom'         => $this->encrypt_aes($total), // ✅ kirim total
+                'nom'         => $this->encrypt_aes($total),
                 'tujuan'      => $this->encrypt_aes($request->user_id),
                 'kode_produk' => $this->encrypt_aes($request->kode_produk ?? 'ML5'),
             ];
@@ -74,7 +70,6 @@ class OrderController extends Controller
             if ($decoded && isset($decoded['qrCode'])) {
                 $qrCode = $decoded['qrCode'];
 
-                // Update order dengan QRIS
                 $order->update([
                     'qris_payload'   => $qrCode,
                     'qris_image_url' => $order->qris_image_url ?? '',
@@ -157,7 +152,7 @@ class OrderController extends Controller
     private function encrypt_aes($string)
     {
         $method = "aes-128-ecb";
-        $key    = date("dmdYmdm"); // contoh: 210820252108
+        $key    = date("dmdYmdm"); 
         return openssl_encrypt($string, $method, $key);
     }
 }

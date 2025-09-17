@@ -3,13 +3,11 @@
 @section('content')
 <div class="container my-5">
 
-    {{-- Status Header --}}
     <div class="text-center mb-4">
         <h4 class="fw-bold text-light">Belum Bayar</h4>
         <p class="text-muted">Selesaikan Pembayaran Sebelum Waktu Habis</p>
     </div>
 
-    {{-- Countdown --}}
     <div class="d-flex justify-content-center gap-3 mb-4">
         <div class="count-box text-center">
             <h2 id="hours">00</h2>
@@ -27,7 +25,6 @@
     <p class="text-danger text-center small">Agar Pesanan Kamu Tidak Expired</p>
 
     <div class="row g-4">
-        {{-- QR Section --}}
         <div class="col-md-6 text-center">
             <div class="bg-white p-3 rounded shadow-sm d-inline-block">
                 @php $qrCode = $qrisData['qris'] ?? ''; @endphp
@@ -47,11 +44,9 @@
             </div>
         </div>
 
-        {{-- Detail Section --}}
         <div class="col-md-6">
             <div class="card bg-dark text-white border-0 rounded-4 p-3 shadow-sm">
 
-                {{-- Header info --}}
                 <div class="row text-center mb-3">
                     <div class="col">
                         <small class="text-muted d-block">Tanggal Pembelian</small>
@@ -73,16 +68,14 @@
 
                 <hr class="border-secondary">
 
-                {{-- Game Info --}}
                 <div class="d-flex align-items-center mb-3">
-                    <img src="{{ $qrisData['game_icon'] ?? '/default-game.png' }}" 
+                    <img src="{{ $qrisData['game_icon'] ?? '/default-game.png' }}"
                          alt="Game" class="rounded me-3" style="width: 50px; height: 50px;">
                     <div>
                         <h5 class="mb-0 fw-bold">{{ $qrisData['game_name'] ?? 'Game' }}</h5>
                     </div>
                 </div>
 
-                {{-- Order Detail --}}
                 <ul class="list-unstyled small">
                     <li class="d-flex justify-content-between"><span>Item</span><span>{{ $qrisData['item'] ?? '-' }}</span></li>
                     <li class="d-flex justify-content-between"><span>ID User</span><span>{{ $qrisData['user_id'] ?? '-' }}</span></li>
@@ -102,7 +95,6 @@
     </div>
 </div>
 
-{{-- Countdown Script --}}
 @if(isset($qrisData['expired']))
 <script>
     const expiredTime = new Date("{{ $qrisData['expired'] }}").getTime();
@@ -130,16 +122,15 @@
 </script>
 @endif
 
-{{-- Custom Style --}}
 <style>
-    body { background: #1f1f1f; color: #fff; }
+    body { background-color: #1a1a2e; }
     .count-box {
         background: #2a2a2a;
         border-radius: 10px;
         padding: 10px 20px;
         min-width: 80px;
     }
-    .count-box h2 { margin: 0; font-weight: bold; color: #A9B5DF; } 
+    .count-box h2 { margin: 0; font-weight: bold; color: #A9B5DF; }
     .btn-pink {
         background: #1B3C53;
         color: white;

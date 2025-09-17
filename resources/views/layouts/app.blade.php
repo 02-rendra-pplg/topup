@@ -102,11 +102,14 @@
 <nav class="navbar navbar-dark">
     <div class="container-fluid d-flex align-items-center">
         <div class="d-flex align-items-center gap-2">
+
             <button class="btn text-white p-0 me-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarMenu" aria-controls="sidebarMenu">
                 <i class="bi bi-list fs-4"></i>
             </button>
-            <a class="navbar-brand m-0" href="/">
-                instinc<span style="color: #3498db">T</span>
+
+            <a class="navbar-brand d-flex align-items-center m-0" href="/">
+                <img src="{{ asset('storage/logo.png') }}" alt="Logo" height="30" class="me-2">
+                <span class="fw-bold">Javapay</span>
             </a>
         </div>
     </div>
@@ -132,8 +135,8 @@
                 </a>
             </li>
             <li class="nav-item">
-                <a href="/login" class="nav-link text-white d-flex align-items-center gap-2">
-                    <i class="bi bi-search"></i> Lacak Transaksi
+                <a href="#" class="nav-link text-white d-flex align-items-center gap-2">
+                    <i class="bi bi-search"></i> Riwayat Transaksi
                 </a>
             </li>
         </ul>
@@ -146,13 +149,15 @@
     </div>
 </main>
 
-<!-- Footer -->
 <div class="footer mt-5 text-white">
     <div class="container">
         <div class="row gy-4">
             <div class="col-md-4">
-                <h4>instinc<span style="color: #3498db">T</span></h4>
-                <p>Top-Up Game Favorit Kamu Di instincT Agar Main Game Semakin Seru.<br>Pengiriman Cepat Dan Berbagai Methode Pembayaran Yang Lengkap.</p>
+            <a class="navbar-brand d-flex align-items-center m-0" href="/">
+                <img src="{{ asset('storage/logo.png') }}" alt="Logo" height="30" class="me-2">
+                <span class="fw-bold">Javapay</span>
+            </a>
+             <p>Top-Up Game Favorit Kamu Di instincT Agar Main Game Semakin Seru.<br>Pengiriman Cepat Dan Berbagai Methode Pembayaran Yang Lengkap.</p>
             </div>
             <div class="col-md-2">
                 <h6>PETA SITUS</h6>
@@ -184,7 +189,7 @@
         </div>
         <hr class="mt-5" style="border-color: #444;">
         <div class="d-flex flex-wrap justify-content-between text-white-50 small">
-            <div>© 2025 instincT. Semua Hak Cipta</div>
+            <div>© 2025 JavaPay. Semua Hak Cipta</div>
             <div><a href="#" class="text-decoration-none" style="color: #0099ff;">Syarat & Ketentuan Pengguna</a></div>
         </div>
     </div>
