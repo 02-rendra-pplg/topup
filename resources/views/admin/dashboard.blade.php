@@ -50,6 +50,11 @@
                 </div>
             </div>
         </div>
+
+        {{-- Tambahan tombol Orders / Verifikasi Pesanan --}}
+        <div class="col-md-4">
+            <a href="{{ route('admin.orders.index') }}" class="btn btn-info btn-lg w-100 mb-3">Orders / Verifikasi</a>
+        </div>
     </div>
 </div>
 @endsection

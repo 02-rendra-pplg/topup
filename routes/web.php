@@ -10,7 +10,6 @@ use App\Http\Controllers\OrderController;
 use App\Http\Controllers\PembayaranController;
 
 
-
 Route::get('/', function () {
     return view('pages.home');
 })->name('home');
@@ -22,8 +21,14 @@ Route::prefix('topup')->group(function () {
 });
 
 Route::prefix('orders')->group(function () {
+    // buat order
     Route::post('/', [OrderController::class, 'store'])->name('orders.store');
-    Route::get('/{id}', [OrderController::class, 'show'])->name('orders.show');
+
+    // cek status pesanan
+    Route::get('/status/{trx_id}', [OrderController::class, 'status'])->name('orders.status');
+
+    // detail order
+    Route::get('/{trx_id}', [OrderController::class, 'show'])->name('orders.show');
 });
 
 Route::get('/qris/{order_id}', [PembayaranController::class, 'qris'])->name('pembayaran.qris');
@@ -33,6 +38,7 @@ Route::post('/login-admin', [AdminController::class, 'login'])->name('admin.logi
 
 
 Route::middleware('auth:admin')->group(function () {
+    // Dashboard
     Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
 
 
@@ -41,5 +47,12 @@ Route::middleware('auth:admin')->group(function () {
     Route::resource('flashsale', FlashSaleController::class);
     Route::resource('banner', BannerController::class);
 
+    // =========================
+    // Orders (Admin)
+    // =========================
+    Route::get('/admin/orders', [AdminController::class, 'orders'])->name('admin.orders.index'); // daftar pesanan
+    Route::post('/admin/orders/{trx_id}/verify', [AdminController::class, 'verifyOrder'])->name('admin.orders.verify'); // verifikasi pesanan
+
+    // Logout
     Route::post('/logout-admin', [AdminController::class, 'logout'])->name('admin.logout');
 });

@@ -49,9 +49,10 @@ class OrderController extends Controller
             'payment_method' => $request->payment_method,
             'status'         => 'pending',
             'qris_payload'   => null,
-            'expired_at'     => now()->addMinutes(30),
+            'expired_at'     => now()->addHours(15),
             'fee'            => $fee,
             'unique_code'    => $unique,
+            'verification_code' => rand(100000, 999999),
         ]);
 
         try {
@@ -155,4 +156,31 @@ class OrderController extends Controller
         $key    = date("dmdYmdm"); 
         return openssl_encrypt($string, $method, $key);
     }
+
+    public function verify(Request $request)
+{
+    $request->validate([
+        'trx_id' => 'required|string|exists:orders,trx_id',
+        'verification_code' => 'required|string',
+    ]);
+
+    $order = Order::where('trx_id', $request->trx_id)->firstOrFail();
+
+    if ($order->verification_code === $request->verification_code) {
+        $order->update(['status' => 'paid']);
+        return back()->with('success', 'Order berhasil diverifikasi dan sudah dibayar.');
+    }
+
+    return back()->withErrors(['verification_code' => 'Kode verifikasi salah.']);
+}
+
+public function status($trxId)
+{
+    $order = Order::where('trx_id', $trxId)->firstOrFail();
+
+    // tampilkan view form masukkan kode verifikasi
+    return view('admin.orders.status', compact('order'));
+}
+
+
 }

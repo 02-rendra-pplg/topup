@@ -42,6 +42,21 @@
                     Unduh kode QR
                 </a>
             </div>
+
+            {{-- Tombol tambahan di bawah Unduh QR --}}
+            <div class="mt-2 d-flex flex-column gap-2 align-items-center">
+                {{-- tombol lihat status pesanan --}}
+                <a href="{{ route('orders.status', ['trx_id' => $qrisData['trx_id']]) }}">
+                    Masukkan Kode
+                </a>
+
+
+                {{-- tombol kembali ke beranda --}}
+                <a href="{{ route('home') }}"
+                   class="btn btn-pink rounded-pill px-4 fw-bold">
+                    Kembali ke Beranda
+                </a>
+            </div>
         </div>
 
         <div class="col-md-6">
@@ -98,7 +113,6 @@
 @if(isset($qrisData['expired']))
 <script>
     const expiredTime = new Date("{{ $qrisData['expired'] }}").getTime();
-
     const timer = setInterval(() => {
         const now = new Date().getTime();
         const distance = expiredTime - now;
@@ -135,7 +149,7 @@
         background: #1B3C53;
         color: white;
         transition: .3s;
-    }
+    }       
     .btn-pink:hover { background: #A9B5DF; color: #fff; }
     .text-pink { color: #A9B5DF !important; }
 </style>
