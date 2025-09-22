@@ -107,8 +107,8 @@
                 <i class="bi bi-list fs-4"></i>
             </button>
 
-            <a class="navbar-brand d-flex align-items-center m-0" href="/">
-                <img src="{{ asset('storage/logo.png') }}" alt="Logo" height="30" class="me-2">
+           <a class="navbar-brand d-flex align-items-center m-0" href="/">
+                <img src="{{ asset('images/logo.png') }}" alt="Logo" height="30" class="me-2">
                 <span class="fw-bold">Javapay</span>
             </a>
         </div>
@@ -117,9 +117,10 @@
 
 <div class="offcanvas offcanvas-start text-bg-dark" tabindex="-1" id="sidebarMenu" aria-labelledby="sidebarLabel">
     <div class="offcanvas-header">
-        <a href="/" class="navbar-brand m-0 text-white">
-            instinc<span style="color: #3498db">T</span>
-        </a>
+         <a class="navbar-brand d-flex align-items-center m-0" href="/">
+                <img src="{{ asset('images/logo.png') }}" alt="Logo" height="30" class="me-2">
+                <span class="fw-bold">Javapay</span>
+            </a>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
     </div>
     <div class="offcanvas-body">
@@ -154,7 +155,7 @@
         <div class="row gy-4">
             <div class="col-md-4">
             <a class="navbar-brand d-flex align-items-center m-0" href="/">
-                <img src="{{ asset('storage/logo.png') }}" alt="Logo" height="30" class="me-2">
+                <img src="{{ asset('images/logo.png') }}" alt="Logo" height="30" class="me-2">
                 <span class="fw-bold">Javapay</span>
             </a>
              <p>Top-Up Game Favorit Kamu Di instincT Agar Main Game Semakin Seru.<br>Pengiriman Cepat Dan Berbagai Methode Pembayaran Yang Lengkap.</p>

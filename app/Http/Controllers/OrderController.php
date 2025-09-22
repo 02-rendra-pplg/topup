@@ -23,7 +23,7 @@ class OrderController extends Controller
             'nominal'        => 'nullable|string',
             'kode_produk'    => 'nullable|string',
         ]);
-
+        // dd('jossjiss');
         $game = Game::findOrFail($request->game_id);
 
         if ($game->tipe == 2 && empty($request->server_id)) {
@@ -66,6 +66,8 @@ class OrderController extends Controller
             ];
 
             $response = $this->sendToQrisApi($data);
+//             Log::info('Data QRIS dikirim: ' . json_encode($data));
+// Log::info('Response QRIS: ' . $response);
             $decoded  = json_decode($response, true);
 
             if ($decoded && isset($decoded['qrCode'])) {
@@ -76,23 +78,7 @@ class OrderController extends Controller
                     'qris_image_url' => $order->qris_image_url ?? '',
                 ]);
 
-                return view('topup.qris', [
-                    'qrisData' => [
-                        'trx_id'   => $order->trx_id,
-                        'qris'     => $qrCode,
-                        'expired'  => $order->expired_at,
-                        'price'    => $order->price,
-                        'fee'      => $order->fee,
-                        'unique'   => $order->unique_code,
-                        'total'    => $order->amount,
-                        'id'       => $order->id,
-                        'game'     => $order->game_name,
-                        'user_id'  => $order->user_id,
-                        'server'   => $order->server_id,
-                        'nominal'  => $order->nominal,
-                    ],
-                    'qrSvg' => QrCode::size(250)->generate($qrCode),
-                ]);
+                return redirect()->route('orders.show', $order->trx_id);
             }
 
             return back()->withErrors(['payment' => 'Gagal membuat QRIS, silakan coba lagi.']);
@@ -102,26 +88,24 @@ class OrderController extends Controller
         }
     }
 
-        public function show($trxId)
+    public function show($trxId)
     {
         $order = Order::where('trx_id', $trxId)->firstOrFail();
 
         return view('topup.qris', [
-            'qrisData' => [
-                'trx_id'   => $order->trx_id,
-                'qris'     => $order->qris_payload,
-                'image'    => $order->qris_image_url ?? '',
-                'expired'  => $order->expired_at,
-                'price'    => $order->price,
-                'fee'      => $order->fee ?? 0,
-                'unique'   => $order->unique_code ?? 0,
-                'total'    => $order->amount ?? $order->price,
-                'id'       => $order->id,
-                'game'     => $order->game_name,
-                'user_id'  => $order->user_id,
-                'server'   => $order->server_id,
-                'nominal'  => $order->nominal,
-            ],
+            'qrisData'=> [
+            'trx_id'   => $order->trx_id,
+            'qris'     => $order->qris_payload,
+            'expired'  => $order->expired_at,
+            'price'    => $order->price,
+            'fee'      => $order->fee,
+            'unique_code' => $order->unique_code,
+            'total'    => $order->amount,
+            'game_name'=> $order->game_name,
+            'user_id'  => $order->user_id,
+            'server_id'=> $order->server_id,
+            'status'   => $order->status, // <- penting
+        ],
             'qrSvg' => $order->qris_payload ? QrCode::size(250)->generate($order->qris_payload) : null,
         ]);
     }
@@ -153,34 +137,32 @@ class OrderController extends Controller
     private function encrypt_aes($string)
     {
         $method = "aes-128-ecb";
-        $key    = date("dmdYmdm"); 
+        $key    = date("dmdYmdm");
         return openssl_encrypt($string, $method, $key);
     }
 
     public function verify(Request $request)
-{
-    $request->validate([
-        'trx_id' => 'required|string|exists:orders,trx_id',
-        'verification_code' => 'required|string',
-    ]);
+    {
+        $request->validate([
+            'trx_id' => 'required|string|exists:orders,trx_id',
+            'verification_code' => 'required|string',
+        ]);
 
-    $order = Order::where('trx_id', $request->trx_id)->firstOrFail();
+        $order = Order::where('trx_id', $request->trx_id)->firstOrFail();
 
-    if ($order->verification_code === $request->verification_code) {
-        $order->update(['status' => 'paid']);
-        return back()->with('success', 'Order berhasil diverifikasi dan sudah dibayar.');
+        if ($order->verification_code === $request->verification_code) {
+            $order->update(['status' => 'paid']);
+            return back()->with('success', 'Order berhasil diverifikasi dan sudah dibayar.');
+        }
+
+        return back()->withErrors(['verification_code' => 'Kode verifikasi salah.']);
     }
 
-    return back()->withErrors(['verification_code' => 'Kode verifikasi salah.']);
-}
+    public function status($trxId)
+    {   
+        $order = Order::where('trx_id', $trxId)->firstOrFail();
 
-public function status($trxId)
-{
-    $order = Order::where('trx_id', $trxId)->firstOrFail();
-
-    // tampilkan view form masukkan kode verifikasi
-    return view('admin.orders.status', compact('order'));
-}
-
-
+        // tampilkan view form masukkan kode verifikasi
+        return view('admin.orders.status', compact('order'));
+    }
 }
