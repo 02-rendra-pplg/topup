@@ -70,7 +70,7 @@
         <a class="navbar-brand fw-bold" href="{{ route('admin.dashboard') }}">
             <img src="{{ asset('images/logo.png') }}" alt="Logo" height="30" class="me-2">
             <span class="fw-bold">Javapay</span> </a>
-        <div><i class="bi bi-person-circle fs-4 text-white"></i></div>
+        <div class="btn btn-outline-light"><a href="{{ route('admin.logout') }}" class="nav-link"><i class="bi bi-logout"></i> Logout</a></i></div>
     </nav>
 
     <div class="sidebar">
@@ -83,6 +83,7 @@
             <li><a href="{{ route('flashsale.index') }}" class="nav-link"><i class="bi bi-lightning-fill"></i> Flash
                     Sale</a></li>
             <li><a href="{{ route('banner.index') }}" class="nav-link"><i class="bi bi-image"></i> Banner</a></li>
+            <li><a href="{{ route('admin.orders.index') }}" class="nav-link"><i class="bi bi-bell"></i> Verifikasi</a></li>
         </ul>
     </div>
 

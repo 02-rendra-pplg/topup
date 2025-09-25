@@ -5,6 +5,10 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Order;
+use App\Models\Game;
+use App\Models\Pembayaran;
+use App\Models\Banner;
+use App\Models\FlashSale;
 
 class AdminController extends Controller
 {
@@ -32,7 +36,22 @@ class AdminController extends Controller
 
     public function dashboard()
     {
-        return view('admin.dashboard');
+        $games_count      = Game::count();
+        $payments_count   = Pembayaran::count();
+        $banners_count    = Banner::count();
+        $flashsales_count = FlashSale::count();
+
+        $chart_labels = ['Games', 'Metode Pembayaran', 'Banner', 'Flash Sale'];
+        $chart_data   = [$games_count, $payments_count, $banners_count, $flashsales_count];
+
+        return view('admin.dashboard', compact(
+            'games_count',
+            'payments_count',
+            'banners_count',
+            'flashsales_count',
+            'chart_labels',
+            'chart_data'
+        ));
     }
 
     public function orders()
@@ -41,17 +60,12 @@ class AdminController extends Controller
         return view('admin.orders.index', compact('orders'));
     }
 
-    // ✅ Tambahan: Update order jadi paid
     public function verifyOrder($trx_id)
     {
-        // cari order berdasarkan trx_id
         $order = Order::where('trx_id', $trx_id)->firstOrFail();
-
-        // ubah status jadi success (atau paid)
         $order->status = 'success';
         $order->save();
 
-        // kembali ke halaman sebelumnya dengan pesan sukses
         return redirect()->back()->with('success', 'Pesanan berhasil diverifikasi!');
     }
 }

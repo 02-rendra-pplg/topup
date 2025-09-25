@@ -26,7 +26,6 @@
             </div>
             <p class="text-danger text-center small">Agar Pesanan Kamu Tidak Expired</p>
         @else
-            {{-- kalau sudah success --}}
             <div class="alert alert-success text-center py-4 rounded shadow-sm">
                 <div class="mb-2">
                     <i class="bi bi-check-circle-fill fs-1"></i>

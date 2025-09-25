@@ -51,7 +51,10 @@
                                 </td>
                                 <td class="text-center">
                                     @if($order->status == 'pending')
-                                        <form action="{{ route('admin.orders.verify', $order->trx_id) }}" method="POST" onsubmit="return confirm('Yakin verifikasi pesanan ini?')">
+                                <form action="{{ route('admin.orders.verify', ['trx_id' => $order->trx_id]) }}" method="POST">
+                                    @csrf
+                                    <button type="submit" class="btn btn-sm btn-success">Verifikasi</button>
+                                </form>
                                             @csrf
                                             <button type="submit" class="btn btn-sm btn-success">Verifikasi</button>
                                         </form>

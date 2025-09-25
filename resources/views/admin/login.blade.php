@@ -85,7 +85,7 @@
 
 <div class="login-card">
     <div class="brand">
-        <img src="{{ asset('storage/logo.png') }}" alt="Logo">
+        <img src="{{ asset('images/logo.png') }}" alt="Logo">
         <span>Javapay</span>
     </div>
 
