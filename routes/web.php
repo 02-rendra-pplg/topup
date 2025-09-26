@@ -47,5 +47,5 @@ Route::middleware('auth:admin')->group(function () {
     Route::get('/admin/orders', [AdminController::class, 'orders'])->name('admin.orders.index');
     Route::post('/admin/orders/{trx_id}/verify', [AdminController::class, 'verifyOrder'])->name('admin.orders.verify');
 
-    Route::post('/logout-admin', [AdminController::class, 'logout'])->name('admin.logout');
+    Route::get('/logout-admin', [AdminController::class, 'logout'])->name('admin.logout');
 });
