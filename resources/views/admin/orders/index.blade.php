@@ -54,7 +54,7 @@
                                 <form action="{{ route('admin.orders.verify', ['trx_id' => $order->trx_id]) }}" method="POST">
                                     @csrf
                                     <button type="submit" class="btn btn-sm btn-success">Verifikasi</button>
-                                </form>
+                                </form> 
                                             @csrf
                                             <button type="submit" class="btn btn-sm btn-success">Verifikasi</button>
                                         </form>
