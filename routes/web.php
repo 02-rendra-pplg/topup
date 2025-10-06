@@ -28,6 +28,12 @@ Route::prefix('orders')->group(function () {
     Route::get('/{trx_id}', [OrderController::class, 'show'])->name('orders.show');
 });
 
+// Route::get('/check-nickname', [OrderController::class, 'checkNickname'])->name('orders.checkNickname');
+
+Route::post('/topup/check-nickname', [TopupController::class, 'checkNickname'])->name('topup.checkNickname');
+
+
+
 Route::get('/qris/{order_id}', [PembayaranController::class, 'qris'])->name('pembayaran.qris');
 
 Route::get('/login-admin', [AdminController::class, 'logintampil'])->name('admin.login');

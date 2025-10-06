@@ -4,6 +4,7 @@
 <div class="container my-5">
     <div class="row g-4">
 
+        {{-- Kartu Game --}}
         <div class="col-md-5">
             <div class="card h-100 shadow" style="background-color: #1f2937; border-radius: 12px;">
                 <div class="card-body p-4 text-white">
@@ -36,6 +37,7 @@
             </div>
         </div>
 
+        {{-- Form --}}
         <div class="col-md-7">
             <div class="card shadow" style="background-color: #1f2937;">
                 <div class="card-body p-4 text-white">
@@ -52,24 +54,23 @@
 
                     <form method="POST" action="{{ route('orders.store') }}" id="topupForm">
                         @csrf
-
                         <input type="hidden" name="game_id" value="{{ $game->id }}">
-                        <input type="hidden" name="game_name" value="{{ $game->name }}">
                         <input type="hidden" name="price" id="priceInput" required>
                         <input type="hidden" name="nominal" id="nominalInput" required>
                         <input type="hidden" name="kode_produk" id="produk" required>
                         <input type="hidden" name="payment_method" id="payment_method">
 
+                        {{-- Informasi Pelanggan --}}
                         <h5 class="mb-3 text-white">Informasi Pelanggan</h5>
                         <div class="row g-3">
                             <div class="col-md-{{ $game->tipe == 2 ? '6' : '12' }}">
-                                <input type="text" name="user_id" class="form-control bg-white text-dark"
+                                <input type="text" name="user_id" id="userID" class="form-control bg-white text-dark"
                                        placeholder="User ID" required>
                             </div>
 
                             @if ($game->tipe == 2)
                             <div class="col-md-6">
-                                <input type="text" name="server_id" class="form-control bg-white text-dark"
+                                <input type="text" name="server_id" id="serverID" class="form-control bg-white text-dark"
                                        placeholder="Server ID" required>
                             </div>
                             @endif
@@ -78,20 +79,22 @@
                                 <input type="text" name="whatsapp" class="form-control bg-white text-dark"
                                        placeholder="08xxxxxxxxxx" required>
                             </div>
+
+                            {{-- Tempat tampil nickname --}}
+                            <div class="col-12">
+                                <div id="nicknameResult" class="alert alert-info mt-2 d-none small mb-0"></div>
+                            </div>
                         </div>
 
+                        {{-- Nominal --}}
                         <h5 class="mt-4 mb-2 text-white">Pilih Nominal Top Up</h5>
                         <div class="row g-2">
                             @foreach ($list as $val)
                                 @php
                                     $harga_bersih = (int) preg_replace('/\D/', '', $val['hrg']);
                                     $logo = $game->logo_diamond ?? null;
-
-                                    if (Str::contains(strtolower($val['nama']), 'weekly') && $game->logo_weekly) {
-                                        $logo = $game->logo_weekly;
-                                    } elseif (Str::contains(strtolower($val['nama']), 'member') && $game->logo_member) {
-                                        $logo = $game->logo_member;
-                                    }
+                                    if (Str::contains(strtolower($val['nama']), 'weekly') && $game->logo_weekly) $logo = $game->logo_weekly;
+                                    elseif (Str::contains(strtolower($val['nama']), 'member') && $game->logo_member) $logo = $game->logo_member;
                                 @endphp
 
                                 <div class="col-6 col-md-4">
@@ -100,8 +103,7 @@
                                         data-nominal="{{ $val['nama'] }}"
                                         data-harga="{{ $harga_bersih }}"
                                         data-kode="{{ $val['kode'] }}"
-                                        style="border-radius: 12px; transition: all 0.2s ease;">
-
+                                        style="border-radius: 12px;">
                                         <div class="flex-shrink-0 me-3">
                                             @if ($logo)
                                                 <img src="{{ asset('storage/' . $logo) }}"
@@ -109,7 +111,6 @@
                                                     style="width:40px; height:40px; object-fit:contain;">
                                             @endif
                                         </div>
-
                                         <div class="text-start">
                                             <div class="fw-semibold text-white" style="font-size: 14px;">
                                                 {{ $val['nama'] }}
@@ -123,6 +124,7 @@
                             @endforeach
                         </div>
 
+                        {{-- Pembayaran --}}
                         <div class="mt-5">
                             <h6 class="text-white">Metode Pembayaran</h6>
                             @foreach($pembayarans as $pay)
@@ -132,7 +134,6 @@
                                     data-nama="{{ $pay->nama }}"
                                     data-admin="{{ $pay->admin }}"
                                     data-tipe-admin="{{ $pay->tipe_admin }}">
-
                                     <div class="d-flex align-items-center">
                                         <img src="{{ asset('storage/'.$pay->logo) }}" alt="{{ $pay->nama }}" width="40" class="me-3">
                                         <span class="fw-semibold text-dark">{{ $pay->nama }}</span>
@@ -153,6 +154,7 @@
                         </div>
                     </form>
 
+                    {{-- Modal Konfirmasi --}}
                     <div class="modal fade" id="modalKonfirmasi" tabindex="-1" aria-labelledby="modalKonfirmasiLabel" aria-hidden="true">
                         <div class="modal-dialog modal-dialog-centered">
                             <div class="modal-content text-dark">
@@ -163,6 +165,7 @@
                                 <div class="modal-body">
                                     <p><strong>Game:</strong> {{ $game->name }}</p>
                                     <p><strong>User ID:</strong> <span id="konfirmasiUserID"></span></p>
+                                    <p><strong>Nickname:</strong> <span id="konfirmasiNickname"></span></p>
                                     @if ($game->tipe == 2)
                                     <p><strong>Server ID:</strong> <span id="konfirmasiServerID"></span></p>
                                     @endif
@@ -185,44 +188,77 @@
 </div>
 
 <style>
-.pilih-nominal:hover,
-.pilih-nominal:focus,
-.pilih-nominal.active {
-    background-color: #3498db !important;
-    color: #fff !important;
-    border-color: #3498db !important;
-}
-.pilih-pembayaran.active {
-    background-color: #cce5ff !important;
-    border-color: #007bff !important;
-}
+.pilih-nominal.active { background-color: #3498db !important; color:#fff !important; border-color:#3498db !important; }
+.pilih-pembayaran.active { background-color: #cce5ff !important; border-color:#007bff !important; }
 </style>
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    const nominalBtns  = document.querySelectorAll('.pilih-nominal');
+    const nominalBtns = document.querySelectorAll('.pilih-nominal');
     const pembayaranBtns = document.querySelectorAll('.pilih-pembayaran');
-
-    const priceInput   = document.getElementById('priceInput');
+    const priceInput = document.getElementById('priceInput');
     const nominalInput = document.getElementById('nominalInput');
-    const produk       = document.getElementById('produk');
+    const produk = document.getElementById('produk');
     const pembayaranInput = document.getElementById('payment_method');
+    const nicknameDiv = document.getElementById('nicknameResult');
+    const userIDInput = document.getElementById('userID');
+    const serverIDInput = document.getElementById('serverID');
+    let nickname = '';
 
+    // === Ambil nickname otomatis ===
+    async function fetchNickname() {
+        const userID = userIDInput.value.trim();
+        const serverID = serverIDInput ? serverIDInput.value.trim() : '';
+        if (!userID) return;
+
+        nicknameDiv.classList.remove('d-none');
+        nicknameDiv.textContent = 'Mengecek nickname...';
+
+        try {
+            const res = await fetch("{{ route('topup.checkNickname') }}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({
+                    game_id: '{{ $game->id }}',
+                    user_id: userID,
+                    server_id: serverID
+                })
+            });
+
+            const data = await res.json();
+
+            if (data.success) {
+                nickname = data.nickname;
+                nicknameDiv.textContent = 'Nickname: ' + nickname;
+                nicknameDiv.classList.replace('alert-info', 'alert-success');
+            } else {
+                nickname = '';
+                nicknameDiv.textContent = 'Nickname tidak ditemukan.';
+                nicknameDiv.classList.replace('alert-success', 'alert-info');
+            }
+        } catch (err) {
+            nicknameDiv.textContent = 'Gagal mengambil nickname.';
+        }
+    }
+
+    userIDInput.addEventListener('blur', fetchNickname);
+    if (serverIDInput) serverIDInput.addEventListener('blur', fetchNickname);
+
+    // === Pilih nominal ===
     nominalBtns.forEach(btn => {
         btn.addEventListener('click', function () {
-            const nominal = this.dataset.nominal;
-            const harga   = this.dataset.harga;
-            const kode    = this.dataset.kode;
-
-            produk.value = kode;
-            nominalInput.value = nominal;
-            priceInput.value   = harga;
-
+            produk.value = this.dataset.kode;
+            nominalInput.value = this.dataset.nominal;
+            priceInput.value = this.dataset.harga;
             nominalBtns.forEach(b => b.classList.remove('active'));
             this.classList.add('active');
         });
     });
 
+    // === Pilih pembayaran ===
     pembayaranBtns.forEach(btn => {
         btn.addEventListener('click', () => {
             pembayaranBtns.forEach(b => b.classList.remove('active'));
@@ -231,29 +267,29 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
+    // === Tampilkan modal konfirmasi ===
     document.getElementById('btnKirimPesanan').addEventListener('click', function () {
-        const userID   = document.querySelector('[name="user_id"]').value.trim();
-        const serverID = document.querySelector('[name="server_id"]')?.value.trim() || '-';
-        const whatsapp = document.querySelector('[name="whatsapp"]').value.trim();
-        const nominal  = nominalInput.value.trim();
-        const harga    = parseInt(priceInput.value || 0, 10);
+        const userID = userIDInput.value.trim();
+        const serverID = serverIDInput ? serverIDInput.value.trim() : '-';
+        const nominal = nominalInput.value.trim();
+        const harga = parseInt(priceInput.value || 0, 10);
         const pembayaranNama = document.querySelector('.pilih-pembayaran.active span.fw-semibold')?.innerText || '';
 
-        if (!userID || !whatsapp || !nominal || !harga) {
-            alert('Mohon lengkapi semua data dan pilih nominal.');
+        if (!userID || !nominal || !harga) {
+            alert('Mohon lengkapi data dan pilih nominal.');
             return;
         }
         if (!pembayaranInput.value) {
-            alert('Silakan pilih metode pembayaran.');
+            alert('Pilih metode pembayaran.');
             return;
         }
 
-        document.getElementById('konfirmasiUserID').innerText  = userID;
-        if (document.getElementById('konfirmasiServerID')) {
+        document.getElementById('konfirmasiUserID').innerText = userID;
+        document.getElementById('konfirmasiNickname').innerText = nickname || '(tidak ditemukan)';
+        if (document.getElementById('konfirmasiServerID'))
             document.getElementById('konfirmasiServerID').innerText = serverID;
-        }
         document.getElementById('konfirmasiNominal').innerText = nominal;
-        document.getElementById('konfirmasiHarga').innerText   = formatRupiah(harga);
+        document.getElementById('konfirmasiHarga').innerText = formatRupiah(harga);
         document.getElementById('konfirmasiPembayaran').innerText = pembayaranNama;
 
         new bootstrap.Modal(document.getElementById('modalKonfirmasi')).show();

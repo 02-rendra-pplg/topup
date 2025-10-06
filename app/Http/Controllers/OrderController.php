@@ -159,7 +159,7 @@ class OrderController extends Controller
     }
 
     public function status($trxId)
-    {   
+    {
         $order = Order::where('trx_id', $trxId)->firstOrFail();
 
         // tampilkan view form masukkan kode verifikasi
