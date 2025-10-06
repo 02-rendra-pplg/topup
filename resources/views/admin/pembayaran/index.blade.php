@@ -45,12 +45,15 @@
                 </td>
                 <td>
                     <a href="{{ route('pembayaran.edit', $pembayaran->id) }}" class="btn btn-warning btn-sm">Edit</a>
-                    <form action="{{ route('pembayaran.destroy', $pembayaran->id) }}" method="POST" class="d-inline"
-                        onsubmit="return confirm('Yakin hapus metode ini?')">
-                        @csrf
-                        @method('DELETE')
-                        <button class="btn btn-danger btn-sm">Hapus</button>
-                    </form>
+
+                    <!-- Tombol untuk buka modal hapus -->
+                    <button type="button" class="btn btn-danger btn-sm"
+                        data-bs-toggle="modal"
+                        data-bs-target="#hapusModal"
+                        data-id="{{ $pembayaran->id }}"
+                        data-nama="{{ $pembayaran->nama }}">
+                        Hapus
+                    </button>
                 </td>
             </tr>
         @empty
@@ -60,4 +63,45 @@
         @endforelse
     </tbody>
 </table>
+
+<!-- Modal Konfirmasi Hapus -->
+<div class="modal fade" id="hapusModal" tabindex="-1" aria-labelledby="hapusModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="hapusModalLabel">Konfirmasi Hapus</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Tutup"></button>
+            </div>
+            <div class="modal-body">
+                <p>Apakah kamu yakin ingin menghapus metode pembayaran <strong id="namaMetode"></strong>?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                <form id="formHapus" method="POST">
+                    @csrf
+                    @method('DELETE')
+                    <button type="submit" class="btn btn-danger">Ya, Hapus</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Script untuk ubah action form sesuai data -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const hapusModal = document.getElementById('hapusModal');
+    const namaMetode = document.getElementById('namaMetode');
+    const formHapus = document.getElementById('formHapus');
+
+    hapusModal.addEventListener('show.bs.modal', function(event) {
+        const button = event.relatedTarget;
+        const id = button.getAttribute('data-id');
+        const nama = button.getAttribute('data-nama');
+
+        namaMetode.textContent = nama;
+        formHapus.action = `/pembayaran/${id}`;
+    });
+});
+</script>
 @endsection
