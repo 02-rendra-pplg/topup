@@ -20,7 +20,7 @@
                 <thead class="table-dark text-center">
                     <tr>
                         <th>No</th>
-                        <th>Tanggal</th> {{-- Tambah kolom tanggal --}}
+                        <th>Tanggal</th> {{-- Kolom tanggal --}}
                         <th>Trx ID</th>
                         <th>Game</th>
                         <th>User ID</th>
@@ -35,7 +35,7 @@
                     @forelse($orders as $index => $order)
                         <tr>
                             <td class="text-center">{{ $index + 1 }}</td>
-                            <td>{{ \Carbon\Carbon::parse($order->created_at)->format('d-m-Y H:i') }}</td> {{-- tanggal order --}}
+                            <td>{{ \Carbon\Carbon::parse($order->created_at)->format('d-m-Y H:i') }}</td>
                             <td>{{ $order->trx_id }}</td>
                             <td>{{ $order->game_name }}</td>
                             <td>{{ $order->user_id }}</td>
