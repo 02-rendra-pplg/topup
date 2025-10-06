@@ -9,6 +9,10 @@
         <a href="{{ route('games.create') }}" class="btn btn-primary">+ Tambah Game</a>
     </div>
 
+    @if (session('success'))
+        <div class="alert alert-success">{{ session('success') }}</div>
+    @endif
+
     <div class="card shadow-sm">
         <div class="card-body">
             <div class="table-responsive">
@@ -47,16 +51,14 @@
                                 <a href="{{ route('games.edit', $game->id) }}" class="btn btn-warning btn-sm">
                                     Edit
                                 </a>
-                                <form action="{{ route('games.destroy', $game->id) }}"
-                                      method="POST"
-                                      class="d-inline">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button onclick="return confirm('Yakin ingin menghapus?')"
-                                            class="btn btn-danger btn-sm">
-                                        Hapus
-                                    </button>
-                                </form>
+                                <button type="button"
+                                        class="btn btn-danger btn-sm"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#deleteModal"
+                                        data-id="{{ $game->id }}"
+                                        data-nama="{{ $game->name }}">
+                                    Hapus
+                                </button>
                             </td>
                         </tr>
                         @empty
@@ -70,4 +72,45 @@
         </div>
     </div>
 </div>
+
+<!-- Modal Konfirmasi Hapus -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header bg-danger text-white">
+        <h5 class="modal-title" id="deleteModalLabel">Konfirmasi Hapus</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        Apakah kamu yakin ingin menghapus game <strong id="gameName"></strong>?
+      </div>
+      <div class="modal-footer">
+        <form id="deleteForm" method="POST">
+            @csrf
+            @method('DELETE')
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+            <button type="submit" class="btn btn-danger">Ya, Hapus</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Script Modal -->
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    var deleteModal = document.getElementById('deleteModal');
+    deleteModal.addEventListener('show.bs.modal', function (event) {
+        var button = event.relatedTarget;
+        var gameId = button.getAttribute('data-id');
+        var gameName = button.getAttribute('data-nama');
+
+        // Ubah nama game di teks modal
+        document.getElementById('gameName').textContent = gameName;
+
+        // Ubah action form ke URL destroy yang sesuai
+        document.getElementById('deleteForm').action = '/games/' + gameId;
+    });
+});
+</script>
 @endsection
