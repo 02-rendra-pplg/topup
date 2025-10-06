@@ -135,11 +135,11 @@
                     <i class="bi bi-controller"></i> Semua Game
                 </a>
             </li>
-            <li class="nav-item">
+            {{-- <li class="nav-item">
                 <a href="#" class="nav-link text-white d-flex align-items-center gap-2">
                     <i class="bi bi-search"></i> Riwayat Transaksi
                 </a>
-            </li>
+            </li> --}}
         </ul>
     </div>
 </div>

@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login Admin</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
     <style>
         body {
             background: #1a1a2e;
@@ -76,8 +77,27 @@
             background: #2980b9;
         }
 
-        small.text-danger {
-            font-size: 0.85rem;
+        /* ✅ Rapi dan sejajar tengah untuk ikon mata */
+        .password-wrapper {
+            position: relative;
+        }
+
+        .password-wrapper input {
+            padding-right: 40px; /* ruang untuk ikon */
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #aaa;
+            font-size: 1.1rem;
+        }
+
+        .toggle-password:hover {
+            color: #fff;
         }
     </style>
 </head>
@@ -100,16 +120,33 @@
                 <small class="text-danger">{{ $message }}</small>
             @enderror
         </div>
-        <div class="mb-3 text-start">
-            <label class="form-label">Password</label>
-            <input type="password" name="password" class="form-control" placeholder="Masukkan password" required>
-            @error('password')
-                <small class="text-danger">{{ $message }}</small>
-            @enderror
+
+    <div class="mb-3 text-start">
+        <label class="form-label">Password</label>
+        <div class="input-group">
+            <input type="password" id="password" name="password" class="form-control" placeholder="Masukkan password" required>
+            <span class="input-group-text bg-transparent border-start-0">
+                <i class="bi bi-eye-slash text-white" id="togglePassword" style="cursor: pointer;"></i>
+            </span>
         </div>
+        @error('password')
+            <small class="text-danger">{{ $message }}</small>
+        @enderror
+    </div>
         <button type="submit" class="btn btn-primary w-100">Login</button>
     </form>
-</div>
+
+<script>
+    const togglePassword = document.getElementById('togglePassword');
+    const password = document.getElementById('password');
+
+    togglePassword.addEventListener('click', function () {
+        const type = password.type === 'password' ? 'text' : 'password';
+        password.type = type;
+        this.classList.toggle('bi-eye');
+        this.classList.toggle('bi-eye-slash');
+    });
+</script>
 
 </body>
 </html>
