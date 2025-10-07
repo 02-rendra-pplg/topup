@@ -6,12 +6,20 @@ use App\Models\Game;
 use App\Models\Banner;
 use App\Models\FlashSale;
 use App\Models\Pembayaran;
+use App\Services\GameAPIService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
 class TopupController extends Controller
 {
+    protected $gameAPIService;
+
+    public function __construct(GameAPIService $gameAPIService)
+    {
+        $this->gameAPIService = $gameAPIService;
+    }
+
     public function index()
     {
         $flashSales = FlashSale::where('status', 1)
@@ -109,71 +117,102 @@ class TopupController extends Controller
         return back()->with('success', 'Top-up berhasil diproses!');
     }
 
-public function checkNickname(Request $request)
-{
-    $request->validate([
-        'game_id'   => 'required|exists:games,id',
-        'user_id'   => 'required|string',
-        'server_id' => 'nullable|string',
-    ]);
-
-    $game = Game::findOrFail($request->game_id);
-
-    // 🔗 Panggil API resmi ceklaporan.com
-    $url = "https://ceklaporan.com/android/cekidgame?"
-         . "id=" . urlencode($game->slug)
-         . "&user_id=" . urlencode($request->user_id)
-         . "&server_id=" . urlencode($request->server_id ?? '');
-
-    Log::info("Memeriksa nickname dari: {$url}");
-
-    $curl = curl_init();
-    curl_setopt_array($curl, [
-        CURLOPT_URL => $url,
-        CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_TIMEOUT => 10,
-        CURLOPT_SSL_VERIFYPEER => false,
-        CURLOPT_FOLLOWLOCATION => true,
-    ]);
-
-    $response = curl_exec($curl);
-    Log::info("Response API Nickname:", [$response]);
-    $error = curl_error($curl);
-    curl_close($curl);
-
-    if ($error) {
-        Log::error("CURL Error: " . $error);
-        return response()->json([
-            'success' => false,
-            'message' => 'Tidak dapat menghubungi server.'
+    /**
+     * CHECK NICKNAME - OPTIMIZED FOR WORKING API
+     */
+    public function checkNickname(Request $request)
+    {
+        // Validasi input
+        $validator = Validator::make($request->all(), [
+            'game_id'   => 'required|exists:games,id',
+            'user_id'   => 'required|string|min:3',
+            'server_id' => 'nullable|string|min:1',
         ]);
-    }
 
-    // Coba decode JSON
-    $data = json_decode($response, true);
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Data tidak valid: ' . $validator->errors()->first()
+            ], 422);
+        }
 
-    // Jika JSON tidak valid, coba cari manual pola "nickname"
-    if (!$data && str_contains($response, 'nickname')) {
-        preg_match('/"nickname"\s*:\s*"([^"]+)"/', $response, $match);
-        if (isset($match[1])) {
-            $data = ['nickname' => $match[1]];
+        try {
+            $game = Game::findOrFail($request->game_id);
+
+            Log::info("🎮 Check Nickname Request", [
+                'game' => $game->name,
+                'slug' => $game->slug,
+                'user_id' => $request->user_id,
+                'server_id' => $request->server_id,
+                'ip' => $request->ip()
+            ]);
+
+            // Validasi khusus Mobile Legends
+            if ($game->slug === 'mobile-legends' && empty($request->server_id)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Zone ID diperlukan untuk Mobile Legends'
+                ], 422);
+            }
+
+            // Panggil service untuk mendapatkan nickname
+            $result = $this->gameAPIService->getNickname(
+                $game->slug,
+                $request->user_id,
+                $request->server_id
+            );
+
+            Log::info("📊 Nickname Check Result", [
+                'success' => $result['success'],
+                'has_nickname' => !empty($result['nickname']),
+                'source' => $result['source'] ?? 'unknown',
+                'message' => $result['message'] ?? 'N/A'
+            ]);
+
+            // Response untuk frontend
+            if ($result['success'] && !empty($result['nickname'])) {
+                return response()->json([
+                    'success' => true,
+                    'nickname' => $result['nickname'],
+                    'source' => $result['source'] ?? 'official_api',
+                    'message' => 'Nickname berhasil ditemukan!'
+                ]);
+            }
+
+            // Jika gagal, beri pesan error yang jelas
+            $errorMessage = $result['message'] ?? 'Nickname tidak ditemukan.';
+
+            // Tambahkan saran berdasarkan game
+            if ($game->slug === 'mobile-legends') {
+                $errorMessage .= ' Pastikan User ID dan Zone ID benar. Cara cek: Buka game → Profile → Lihat di bawah nickname.';
+            }
+
+            return response()->json([
+                'success' => false,
+                'message' => $errorMessage,
+                'debug' => app()->environment('local') ? $result : null
+            ]);
+
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            Log::error("❌ Game not found: " . $e->getMessage());
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Game tidak ditemukan.'
+            ], 404);
+
+        } catch (\Exception $e) {
+            Log::error("💥 Check Nickname System Error", [
+                'message' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan sistem. Silakan refresh halaman dan coba lagi.'
+            ], 500);
         }
     }
-
-    // ✅ Jika nickname ditemukan
-    if (isset($data['nickname']) && $data['nickname'] !== '') {
-        return response()->json([
-            'success' => true,
-            'nickname' => $data['nickname']
-        ]);
-    }
-
-    // ⚙️ Fallback dummy agar user tahu koneksi berhasil tapi data kosong
-    return response()->json([
-        'success' => false,
-        'message' => 'Nickname tidak ditemukan. Pastikan User ID dan Server ID benar.'
-    ]);
-}
-
-
 }
